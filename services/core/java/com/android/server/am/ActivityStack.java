@@ -1701,7 +1701,7 @@ final class ActivityStack {
             if (DEBUG_STATES) Slog.d(TAG, "no-history finish of " + mLastNoHistoryActivity +
                     " on new resume");
             requestFinishActivityLocked(mLastNoHistoryActivity.appToken, Activity.RESULT_CANCELED,
-                    null, "no-history", false);
+                    null, "resume-no-history", false);
             mLastNoHistoryActivity = null;
         }
 
@@ -2322,7 +2322,8 @@ final class ActivityStack {
                     }
                     if (DEBUG_TASKS) Slog.w(TAG,
                             "resetTaskIntendedTask: calling finishActivity on " + p);
-                    if (finishActivityLocked(p, Activity.RESULT_CANCELED, null, "reset", false)) {
+                    if (finishActivityLocked(
+                            p, Activity.RESULT_CANCELED, null, "reset-task", false)) {
                         end--;
                         srcPos--;
                     }
@@ -2399,7 +2400,8 @@ final class ActivityStack {
                         if (p.finishing) {
                             continue;
                         }
-                        finishActivityLocked(p, Activity.RESULT_CANCELED, null, "reset", false);
+                        finishActivityLocked(
+                                p, Activity.RESULT_CANCELED, null, "move-affinity", false);
                     }
                 } else {
                     if (taskInsertionPoint < 0) {
@@ -2581,7 +2583,7 @@ final class ActivityStack {
                         Slog.d(TAG, "no-history finish of " + r);
                     }
                     requestFinishActivityLocked(r.appToken, Activity.RESULT_CANCELED, null,
-                            "no-history", false);
+                            "stop-no-history", false);
                 } else {
                     if (DEBUG_STATES) Slog.d(TAG, "Not finishing noHistory " + r
                             + " on stop because we're just sleeping");
@@ -2660,7 +2662,7 @@ final class ActivityStack {
         mService.updateOomAdjLocked();
     }
 
-    final void finishTopRunningActivityLocked(ProcessRecord app) {
+    final void finishTopRunningActivityLocked(ProcessRecord app, String reason) {
         ActivityRecord r = topRunningActivityLocked(null);
         if (r != null && r.app == app) {
             // If the top running activity is from this crashing
@@ -2669,7 +2671,7 @@ final class ActivityStack {
                     + r.intent.getComponent().flattenToShortString());
             int taskNdx = mTaskHistory.indexOf(r.task);
             int activityNdx = r.task.mActivities.indexOf(r);
-            finishActivityLocked(r, Activity.RESULT_CANCELED, null, "crashed", false);
+            finishActivityLocked(r, Activity.RESULT_CANCELED, null, reason, false);
             // Also terminate any activities below it that aren't yet
             // stopped, to avoid a situation where one will get
             // re-start our crashing activity once it gets resumed again.
@@ -2691,7 +2693,7 @@ final class ActivityStack {
                     if (!r.isHomeActivity() || mService.mHomeProcess != r.app) {
                         Slog.w(TAG, "  Force finishing activity 2 "
                                 + r.intent.getComponent().flattenToShortString());
-                        finishActivityLocked(r, Activity.RESULT_CANCELED, null, "crashed", false);
+                        finishActivityLocked(r, Activity.RESULT_CANCELED, null, reason, false);
                     }
                 }
             }
@@ -3028,7 +3030,7 @@ final class ActivityStack {
                     foundParentInTask = false;
                 }
                 requestFinishActivityLocked(parent.appToken, resultCode,
-                        resultData, "navigate-up", true);
+                        resultData, "navigate-top", true);
             }
         }
         Binder.restoreCallingIdentity(origId);
