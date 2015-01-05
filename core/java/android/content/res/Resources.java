@@ -2520,7 +2520,7 @@ public class Resources {
         final int N = cache.size();
         for (int i = N - 1; i >= 0; i--) {
             final WeakReference entry = cache.valueAt(i);
-            if (entry.get() == null) {
+            if (entry == null || entry.get() == null) {
                 cache.removeAt(i);
             }
         }
