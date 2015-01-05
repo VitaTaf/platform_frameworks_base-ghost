@@ -9868,7 +9868,7 @@ public class WindowManagerService extends IWindowManager.Stub
                             }
                         }
 
-                        winAnimator.setSurfaceBoundariesLocked(recoveringMemory);
+                        winAnimator.prepareSurfaceLocked(recoveringMemory);
 
                         final AppWindowToken atoken = w.mAppToken;
                         if (DEBUG_STARTING_WINDOW && atoken != null
