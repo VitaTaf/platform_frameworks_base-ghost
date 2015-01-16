@@ -958,9 +958,7 @@ final class ActivityStack {
                 prev = finishCurrentActivityLocked(prev, FINISH_AFTER_VISIBLE, false);
             } else if (prev.app != null) {
                 if (DEBUG_PAUSE) Slog.v(TAG, "Enqueueing pending stop: " + prev);
-                if (prev.waitingVisible) {
-                    prev.waitingVisible = false;
-                    mStackSupervisor.mWaitingVisibleActivities.remove(prev);
+                if (mStackSupervisor.mWaitingVisibleActivities.remove(prev)) {
                     if (DEBUG_SWITCH || DEBUG_PAUSE) Slog.v(
                             TAG, "Complete pause, no longer waiting: " + prev);
                 }
@@ -1646,8 +1644,8 @@ final class ActivityStack {
         }
 
         if (prev != null && prev != next) {
-            if (!prev.waitingVisible && next != null && !next.nowVisible) {
-                prev.waitingVisible = true;
+            if (!mStackSupervisor.mWaitingVisibleActivities.contains(prev)
+                    && next != null && !next.nowVisible) {
                 mStackSupervisor.mWaitingVisibleActivities.add(prev);
                 if (DEBUG_SWITCH) Slog.v(
                         TAG, "Resuming top, waiting visible to hide: " + prev);
@@ -1664,13 +1662,14 @@ final class ActivityStack {
                     mWindowManager.setAppVisibility(prev.appToken, false);
                     if (DEBUG_SWITCH) Slog.v(TAG, "Not waiting for visible to hide: "
                             + prev + ", waitingVisible="
-                            + (prev != null ? prev.waitingVisible : null)
+                            + mStackSupervisor.mWaitingVisibleActivities.contains(prev)
                             + ", nowVisible=" + next.nowVisible);
                 } else {
-                    if (DEBUG_SWITCH) Slog.v(TAG, "Previous already visible but still waiting to hide: "
-                        + prev + ", waitingVisible="
-                        + (prev != null ? prev.waitingVisible : null)
-                        + ", nowVisible=" + next.nowVisible);
+                    if (DEBUG_SWITCH) Slog.v(TAG,
+                            "Previous already visible but still waiting to hide: " + prev
+                                    + ", waitingVisible="
+                                    + mStackSupervisor.mWaitingVisibleActivities.contains(prev)
+                                    + ", nowVisible=" + next.nowVisible);
                 }
             }
         }
@@ -2796,7 +2795,7 @@ final class ActivityStack {
             if (activityRemoved) {
                 mStackSupervisor.resumeTopActivitiesLocked();
             }
-            if (DEBUG_CONTAINERS) Slog.d(TAG, 
+            if (DEBUG_CONTAINERS) Slog.d(TAG,
                     "destroyActivityLocked: finishCurrentActivityLocked r=" + r +
                     " destroy returned removed=" + activityRemoved);
             return activityRemoved ? null : r;
