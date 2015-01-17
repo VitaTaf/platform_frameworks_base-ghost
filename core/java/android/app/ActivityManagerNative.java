@@ -2208,6 +2208,20 @@ public abstract class ActivityManagerNative extends Binder implements IActivityM
             return true;
         }
 
+        case CREATE_STACK_ON_DISPLAY: {
+            data.enforceInterface(IActivityManager.descriptor);
+            int displayId = data.readInt();
+            IActivityContainer activityContainer = createStackOnDisplay(displayId);
+            reply.writeNoException();
+            if (activityContainer != null) {
+                reply.writeInt(1);
+                reply.writeStrongBinder(activityContainer.asBinder());
+            } else {
+                reply.writeInt(0);
+            }
+            return true;
+        }
+
         case GET_ACTIVITY_DISPLAY_ID_TRANSACTION: {
             data.enforceInterface(IActivityManager.descriptor);
             IBinder activityToken = data.readStrongBinder();
@@ -5231,6 +5245,20 @@ class ActivityManagerProxy implements IActivityManager
         data.recycle();
         reply.recycle();
     }
+
+        case CREATE_STACK_ON_DISPLAY: {
+            data.enforceInterface(IActivityManager.descriptor);
+            int displayId = data.readInt();
+            IActivityContainer activityContainer = createStackOnDisplay(displayId);
+            reply.writeNoException();
+            if (activityContainer != null) {
+                reply.writeInt(1);
+                reply.writeStrongBinder(activityContainer.asBinder());
+            } else {
+                reply.writeInt(0);
+            }
+            return true;
+        }
 
     @Override
     public int getActivityDisplayId(IBinder activityToken) throws RemoteException {
