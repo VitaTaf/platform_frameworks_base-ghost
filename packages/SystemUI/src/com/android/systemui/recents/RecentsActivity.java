@@ -65,7 +65,6 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
         DebugOverlayView.DebugOverlayViewCallbacks {
 
     RecentsConfiguration mConfig;
-    boolean mVisible;
     long mLastTabKeyEventTime;
 
     // Top level views
@@ -181,7 +180,7 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
     });
 
     /** Updates the set of recent tasks */
-    void updateRecentsTasks(Intent launchIntent) {
+    void updateRecentsTasks() {
         // If AlternateRecentsComponent has preloaded a load plan, then use that to prevent
         // reconstructing the task stack
         RecentsTaskLoader loader = RecentsTaskLoader.getInstance();
@@ -315,7 +314,8 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
 
     /** Dismisses recents if we are already visible and the intent is to toggle the recents view */
     boolean dismissRecentsToFocusedTaskOrHome(boolean checkFilteredStackState) {
-        if (mVisible) {
+        SystemServicesProxy ssp = RecentsTaskLoader.getInstance().getSystemServicesProxy();
+        if (ssp.isRecentsTopMost(ssp.getTopMostTask(), null)) {
             // If we currently have filtered stacks, then unfilter those first
             if (checkFilteredStackState &&
                 mRecentsView.unfilterFilteredStacks()) return true;
@@ -349,7 +349,8 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
 
     /** Dismisses Recents directly to Home if we currently aren't transitioning. */
     boolean dismissRecentsToHome(boolean animated) {
-        if (mVisible) {
+        SystemServicesProxy ssp = RecentsTaskLoader.getInstance().getSystemServicesProxy();
+        if (ssp.isRecentsTopMost(ssp.getTopMostTask(), null)) {
             // Return to Home
             dismissRecentsToHomeRaw(animated);
             return true;
@@ -429,7 +430,6 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
     @Override
     protected void onStart() {
         super.onStart();
-        mVisible = true;
         RecentsTaskLoader loader = RecentsTaskLoader.getInstance();
         SystemServicesProxy ssp = loader.getSystemServicesProxy();
         Recents.notifyVisibilityChanged(this, ssp, true);
@@ -445,7 +445,7 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
         loader.registerReceivers(this, mRecentsView);
 
         // Update the recent tasks
-        updateRecentsTasks(getIntent());
+        updateRecentsTasks();
 
         // If this is a new instance from a configuration change, then we have to manually trigger
         // the enter animation state
@@ -457,7 +457,6 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
     @Override
     protected void onStop() {
         super.onStop();
-        mVisible = false;
         RecentsTaskLoader loader = RecentsTaskLoader.getInstance();
         SystemServicesProxy ssp = loader.getSystemServicesProxy();
         Recents.notifyVisibilityChanged(this, ssp, false);
