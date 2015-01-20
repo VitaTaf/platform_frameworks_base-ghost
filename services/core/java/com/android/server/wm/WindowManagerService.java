@@ -3622,7 +3622,7 @@ public class WindowManagerService extends IWindowManager.Stub
             throw new IllegalArgumentException("addAppToken: invalid stackId=" + stackId);
         }
         EventLog.writeEvent(EventLogTags.WM_TASK_CREATED, taskId, stackId);
-        Task task = new Task(atoken, stack, userId);
+        Task task = new Task(atoken, stack, userId, this);
         mTaskIdToTask.put(taskId, task);
         stack.addTask(task, !atoken.mLaunchTaskBehind /* toTop */);
         return task;
@@ -4771,17 +4771,6 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     }
 
-    void removeAppFromTaskLocked(AppWindowToken wtoken) {
-        wtoken.removeAllWindows();
-
-        final Task task = mTaskIdToTask.get(wtoken.groupId);
-        if (task != null) {
-            if (!task.removeAppToken(wtoken)) {
-                Slog.e(TAG, "removeAppFromTaskLocked: token=" + wtoken + " not found.");
-            }
-        }
-    }
-
     @Override
     public void removeAppToken(IBinder token) {
         if (!checkCallingPermission(android.Manifest.permission.MANAGE_APP_TOKENS,
@@ -4829,7 +4818,7 @@ public class WindowManagerService extends IWindowManager.Stub
                     // soon as their animations are complete
                     wtoken.mAppAnimator.clearAnimation();
                     wtoken.mAppAnimator.animating = false;
-                    removeAppFromTaskLocked(wtoken);
+                    wtoken.removeAppFromTaskLocked();
                 }
 
                 wtoken.removed = true;
@@ -5105,30 +5094,6 @@ public class WindowManagerService extends IWindowManager.Stub
         mStackIdToStack.remove(stackId);
     }
 
-    void removeTaskLocked(Task task) {
-        final int taskId = task.taskId;
-        final TaskStack stack = task.mStack;
-        if (!task.mAppTokens.isEmpty() && stack.isAnimating()) {
-            if (DEBUG_STACK) Slog.i(TAG, "removeTask: deferring removing taskId=" + taskId);
-            task.mDeferRemoval = true;
-            return;
-        }
-        if (DEBUG_STACK) Slog.i(TAG, "removeTask: removing taskId=" + taskId);
-        EventLog.writeEvent(EventLogTags.WM_TASK_REMOVED, taskId, "removeTask");
-        task.mDeferRemoval = false;
-        stack.removeTask(task);
-        mTaskIdToTask.delete(task.taskId);
-
-        final ArrayList<AppWindowToken> exitingApps = stack.mExitingAppTokens;
-        for (int appNdx = exitingApps.size() - 1; appNdx >= 0; --appNdx) {
-            final AppWindowToken wtoken = exitingApps.get(appNdx);
-            if (wtoken.groupId == taskId) {
-                wtoken.mIsExiting = false;
-                exitingApps.remove(appNdx);
-            }
-        }
-    }
-
     public void removeTask(int taskId) {
         synchronized (mWindowMap) {
             Task task = mTaskIdToTask.get(taskId);
@@ -5136,7 +5101,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 if (DEBUG_STACK) Slog.i(TAG, "removeTask: could not find taskId=" + taskId);
                 return;
             }
-            removeTaskLocked(task);
+            task.removeLocked();
         }
     }
 
@@ -9976,12 +9941,7 @@ public class WindowManagerService extends IWindowManager.Stub
                     token.mAppAnimator.animating = false;
                     if (DEBUG_ADD_REMOVE || DEBUG_TOKEN_MOVEMENT) Slog.v(TAG,
                             "performLayout: App token exiting now removed" + token);
-                    removeAppFromTaskLocked(token);
-                    exitingAppTokens.remove(i);
-                    final Task task = mTaskIdToTask.get(token.groupId);
-                    if (task != null && task.mDeferRemoval && task.mAppTokens.isEmpty()) {
-                        removeTaskLocked(task);
-                    }
+                    token.removeAppFromTaskLocked();
                 }
             }
         }
