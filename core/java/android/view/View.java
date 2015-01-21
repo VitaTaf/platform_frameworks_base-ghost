@@ -4508,6 +4508,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
         if (scrollabilityCache.scrollBar == null) {
             scrollabilityCache.scrollBar = new ScrollBarDrawable();
+            scrollabilityCache.scrollBar.setCallback(this);
+            scrollabilityCache.scrollBar.setState(getDrawableState());
         }
 
         final boolean fadeScrollbars = a.getBoolean(R.styleable.View_fadeScrollbars, true);
@@ -11652,6 +11654,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
         if (scrollCache.scrollBar == null) {
             scrollCache.scrollBar = new ScrollBarDrawable();
+            scrollCache.scrollBar.setCallback(this);
+            scrollCache.scrollBar.setState(getDrawableState());
         }
 
         if (isHorizontalScrollBarEnabled() || isVerticalScrollBarEnabled()) {
@@ -15981,7 +15985,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see #drawableStateChanged()
      */
     protected boolean verifyDrawable(Drawable who) {
-        return who == mBackground;
+        return who == mBackground || (mScrollCache != null && mScrollCache.scrollBar == who);
     }
 
     /**
@@ -15996,13 +16000,22 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see Drawable#setState(int[])
      */
     protected void drawableStateChanged() {
+        final int[] state = getDrawableState();
+
         final Drawable d = mBackground;
         if (d != null && d.isStateful()) {
-            d.setState(getDrawableState());
+            d.setState(state);
+        }
+
+        if (mScrollCache != null) {
+            final Drawable scrollBar = mScrollCache.scrollBar;
+            if (scrollBar != null && scrollBar.isStateful()) {
+                scrollBar.setState(state);
+            }
         }
 
         if (mStateListAnimator != null) {
-            mStateListAnimator.setState(getDrawableState());
+            mStateListAnimator.setState(state);
         }
     }
 
