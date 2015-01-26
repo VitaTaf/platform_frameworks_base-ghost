@@ -220,7 +220,7 @@ public class TaskStack {
 
         task.mStack = this;
         mDisplayContent.moveStack(this, true);
-        EventLog.writeEvent(EventLogTags.WM_TASK_MOVED, task.taskId, toTop ? 1 : 0, stackNdx);
+        EventLog.writeEvent(EventLogTags.WM_TASK_MOVED, task.mTaskId, toTop ? 1 : 0, stackNdx);
     }
 
     void moveTaskToTop(Task task) {
@@ -250,10 +250,9 @@ public class TaskStack {
             }
             mDisplayContent.layoutNeeded = true;
         }
-        final int taskId = task.taskId;
         for (int appNdx = mExitingAppTokens.size() - 1; appNdx >= 0; --appNdx) {
             final AppWindowToken wtoken = mExitingAppTokens.get(appNdx);
-            if (wtoken.groupId == taskId) {
+            if (wtoken.mTask == task) {
                 wtoken.mIsExiting = false;
                 mExitingAppTokens.remove(appNdx);
             }
