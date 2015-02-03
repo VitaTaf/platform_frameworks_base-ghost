@@ -345,10 +345,6 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     /** When true this window can be displayed on screens owther than mOwnerUid's */
     private boolean mShowToOwnerOnly;
 
-    /** When true this window is at the top of the screen and should be layed out to extend under
-     * the status bar */
-    boolean mUnderStatusBar = true;
-
     /**
      * Wake lock for drawing.
      * Even though it's slightly more expensive to do so, we will use a separate wake lock
@@ -523,8 +519,8 @@ final class WindowState implements WindowManagerPolicy.WindowState {
 
         TaskStack stack = mAppToken != null ? getStack() : null;
         if (stack != null && !stack.isFullscreen()) {
-            getStackBounds(stack, mContainingFrame);
-            if (mUnderStatusBar) {
+            stack.getBounds(mContainingFrame);
+            if (stack.mUnderStatusBar) {
                 mContainingFrame.top = pf.top;
             }
         } else {
@@ -822,10 +818,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     }
 
     void getStackBounds(Rect bounds) {
-        getStackBounds(getStack(), bounds);
-    }
-
-    private void getStackBounds(TaskStack stack, Rect bounds) {
+        final TaskStack stack = getStack();
         if (stack != null) {
             stack.getBounds(bounds);
             return;
