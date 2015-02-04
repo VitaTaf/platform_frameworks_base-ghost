@@ -10631,15 +10631,13 @@ public class WindowManagerService extends IWindowManager.Stub
                 scheduleAnimationLocked();
             } else {
                 screenRotationAnimation.kill();
-                screenRotationAnimation = null;
-                mAnimator.setScreenRotationAnimationLocked(displayId, screenRotationAnimation);
+                mAnimator.setScreenRotationAnimationLocked(displayId, null);
                 updateRotation = true;
             }
         } else {
             if (screenRotationAnimation != null) {
                 screenRotationAnimation.kill();
-                screenRotationAnimation = null;
-                mAnimator.setScreenRotationAnimationLocked(displayId, screenRotationAnimation);
+                mAnimator.setScreenRotationAnimationLocked(displayId, null);
             }
             updateRotation = true;
         }
