@@ -4760,7 +4760,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *
      * @see #setClickable(boolean)
      */
-    public void setOnClickListener(OnClickListener l) {
+    public void setOnClickListener(@Nullable OnClickListener l) {
         if (!isClickable()) {
             setClickable(true);
         }
@@ -4784,7 +4784,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *
      * @see #setLongClickable(boolean)
      */
-    public void setOnLongClickListener(OnLongClickListener l) {
+    public void setOnLongClickListener(@Nullable OnLongClickListener l) {
         if (!isLongClickable()) {
             setLongClickable(true);
         }
