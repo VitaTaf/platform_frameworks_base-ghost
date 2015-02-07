@@ -3718,6 +3718,10 @@ public final class ActivityManagerService extends ActivityManagerNative
             if (r == null) {
                 return;
             }
+            if (r.task != null && r.task.mResizeable) {
+                // Fixed screen orientation isn't supported with resizeable activities.
+                return;
+            }
             final long origId = Binder.clearCallingIdentity();
             mWindowManager.setAppOrientation(r.appToken, requestedOrientation);
             Configuration config = mWindowManager.updateOrientationFromAppTokens(
