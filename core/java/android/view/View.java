@@ -3620,7 +3620,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @param attrs The attributes of the XML tag that is inflating the view.
      * @see #View(Context, AttributeSet, int)
      */
-    public View(Context context, AttributeSet attrs) {
+    public View(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
@@ -3641,7 +3641,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *        the view. Can be 0 to not look for defaults.
      * @see #View(Context, AttributeSet)
      */
-    public View(Context context, AttributeSet attrs, int defStyleAttr) {
+    public View(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
@@ -3678,7 +3678,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *        to not look for defaults.
      * @see #View(Context, AttributeSet, int)
      */
-    public View(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public View(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         this(context);
 
         final TypedArray a = context.obtainStyledAttributes(
