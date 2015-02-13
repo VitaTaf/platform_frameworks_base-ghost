@@ -1778,6 +1778,15 @@ public class AudioService extends IAudioService.Stub {
                                 vss.setIndex(10, device);
                             }
                         }
+                        // Persist volume for stream ring when it is changed here
+                      final int device = getDeviceForStream(streamType);
+                      sendMsg(mAudioHandler,
+                              MSG_PERSIST_VOLUME,
+                              SENDMSG_QUEUE,
+                              device,
+                              0,
+                              mStreamStates[streamType],
+                              PERSIST_DELAY);
                     }
                 }
                 mStreamStates[streamType].mute(false);
