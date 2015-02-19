@@ -178,7 +178,6 @@ public class WindowManagerService extends IWindowManager.Stub
     static final boolean DEBUG_CONFIGURATION = false;
     static final boolean DEBUG_APP_TRANSITIONS = false;
     static final boolean DEBUG_STARTING_WINDOW = false;
-    static final boolean DEBUG_REORDER = false;
     static final boolean DEBUG_WALLPAPER = false;
     static final boolean DEBUG_WALLPAPER_LIGHT = false || DEBUG_WALLPAPER;
     static final boolean DEBUG_DRAG = false;
@@ -4024,20 +4023,7 @@ public class WindowManagerService extends IWindowManager.Stub
         } else {
             stack = null;
         }
-        if (SHOW_LIGHT_TRANSACTIONS) Slog.i(TAG, ">>> OPEN TRANSACTION setFocusedStackFrame");
-        SurfaceControl.openTransaction();
-        try {
-            if (stack == null) {
-                mFocusedStackFrame.setVisibility(false);
-            } else {
-                mFocusedStackFrame.setBounds(stack);
-                final boolean multipleStacks = !stack.isFullscreen();
-                mFocusedStackFrame.setVisibility(multipleStacks);
-            }
-        } finally {
-            SurfaceControl.closeTransaction();
-            if (SHOW_LIGHT_TRANSACTIONS) Slog.i(TAG, ">>> CLOSE TRANSACTION setFocusedStackFrame");
-        }
+        mFocusedStackFrame.setVisibility(stack);
     }
 
     @Override
