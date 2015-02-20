@@ -40,6 +40,7 @@ import android.graphics.Xfermode;
 import android.os.Trace;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.IntProperty;
 import android.util.StateSet;
 import android.util.TypedValue;
 import android.util.Xml;
@@ -1416,5 +1417,20 @@ public abstract class Drawable {
             default: return defaultMode;
         }
     }
+
+    /** @hide */
+    public static final IntProperty<Drawable> ALPHA = new IntProperty<Drawable>("alpha") {
+        @Override
+        public void setValue(Drawable object, int value) {
+            object.mutate();
+            object.setAlpha(value);
+            object.invalidateSelf();
+        }
+
+        @Override
+        public Integer get(Drawable object) {
+            return object.getAlpha();
+        }
+    };
 }
 
