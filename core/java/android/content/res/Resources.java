@@ -16,6 +16,7 @@
 
 package android.content.res;
 
+import android.annotation.ColorInt;
 import com.android.internal.util.XmlUtils;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -927,6 +928,7 @@ public class Resources {
      * @return A single color value in the form 0xAARRGGBB.
      * @deprecated Use {@link #getColor(int, Theme)} instead.
      */
+    @ColorInt
     public int getColor(@ColorRes int id) throws NotFoundException {
         return getColor(id, null);
     }
@@ -947,6 +949,7 @@ public class Resources {
      *
      * @return A single color value in the form 0xAARRGGBB.
      */
+    @ColorInt
     public int getColor(@ColorRes int id, @Nullable Theme theme) throws NotFoundException {
         TypedValue value;
         synchronized (mAccessLock) {

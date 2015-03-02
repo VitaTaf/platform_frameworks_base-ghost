@@ -16,6 +16,7 @@
 
 package android.graphics;
 
+import android.annotation.ColorInt;
 import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -1285,7 +1286,7 @@ public final class Bitmap implements Parcelable {
      *
      * @throws IllegalStateException if the bitmap is not mutable.
      */
-    public void eraseColor(int c) {
+    public void eraseColor(@ColorInt int c) {
         checkRecycled("Can't erase a recycled bitmap");
         if (!isMutable()) {
             throw new IllegalStateException("cannot erase immutable bitmaps");
@@ -1303,6 +1304,7 @@ public final class Bitmap implements Parcelable {
      * @return     The argb {@link Color} at the specified coordinate
      * @throws IllegalArgumentException if x, y exceed the bitmap's bounds
      */
+    @ColorInt
     public int getPixel(int x, int y) {
         checkRecycled("Can't call getPixel() on a recycled bitmap");
         checkPixelAccess(x, y);
@@ -1332,7 +1334,7 @@ public final class Bitmap implements Parcelable {
      * @throws ArrayIndexOutOfBoundsException if the pixels array is too small
      *         to receive the specified number of pixels.
      */
-    public void getPixels(int[] pixels, int offset, int stride,
+    public void getPixels(@ColorInt int[] pixels, int offset, int stride,
                           int x, int y, int width, int height) {
         checkRecycled("Can't call getPixels() on a recycled bitmap");
         if (width == 0 || height == 0) {
@@ -1414,7 +1416,7 @@ public final class Bitmap implements Parcelable {
      * @throws IllegalArgumentException if x, y are outside of the bitmap's
      *         bounds.
      */
-    public void setPixel(int x, int y, int color) {
+    public void setPixel(int x, int y, @ColorInt int color) {
         checkRecycled("Can't call setPixel() on a recycled bitmap");
         if (!isMutable()) {
             throw new IllegalStateException();
@@ -1446,7 +1448,7 @@ public final class Bitmap implements Parcelable {
      * @throws ArrayIndexOutOfBoundsException if the pixels array is too small
      *         to receive the specified number of pixels.
      */
-    public void setPixels(int[] pixels, int offset, int stride,
+    public void setPixels(@ColorInt int[] pixels, int offset, int stride,
             int x, int y, int width, int height) {
         checkRecycled("Can't call setPixels() on a recycled bitmap");
         if (!isMutable()) {

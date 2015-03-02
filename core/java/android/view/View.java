@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
+import android.annotation.ColorInt;
 import android.annotation.DrawableRes;
 import android.annotation.IdRes;
 import android.annotation.IntDef;
@@ -14324,7 +14325,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see #buildDrawingCache()
      * @see #getDrawingCache()
      */
-    public void setDrawingCacheBackgroundColor(int color) {
+    public void setDrawingCacheBackgroundColor(@ColorInt int color) {
         if (color != mDrawingCacheBackgroundColor) {
             mDrawingCacheBackgroundColor = color;
             mPrivateFlags &= ~PFLAG_DRAWING_CACHE_VALID;
@@ -14336,6 +14337,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *
      * @return The background color to used for the drawing cache's bitmap
      */
+    @ColorInt
     public int getDrawingCacheBackgroundColor() {
         return mDrawingCacheBackgroundColor;
     }
@@ -15511,6 +15513,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @return The known solid color background for this view, or 0 if the color may vary
      */
     @ViewDebug.ExportedProperty(category = "drawing")
+    @ColorInt
     public int getSolidColor() {
         return 0;
     }
@@ -16211,7 +16214,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @param color the color of the background
      */
     @RemotableViewMethod
-    public void setBackgroundColor(int color) {
+    public void setBackgroundColor(@ColorInt int color) {
         if (mBackground instanceof ColorDrawable) {
             ((ColorDrawable) mBackground.mutate()).setColor(color);
             computeOpaqueFlags();

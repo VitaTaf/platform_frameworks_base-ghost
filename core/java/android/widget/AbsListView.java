@@ -16,6 +16,7 @@
 
 package android.widget;
 
+import android.annotation.ColorInt;
 import android.annotation.DrawableRes;
 import android.content.Context;
 import android.content.Intent;
@@ -5973,7 +5974,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
      *
      * @param color The background color
      */
-    public void setCacheColorHint(int color) {
+    public void setCacheColorHint(@ColorInt int color) {
         if (color != mCacheColorHint) {
             mCacheColorHint = color;
             int count = getChildCount();
@@ -5991,6 +5992,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
      * @return The cache color hint
      */
     @ViewDebug.ExportedProperty(category = "drawing")
+    @ColorInt
     public int getCacheColorHint() {
         return mCacheColorHint;
     }

@@ -16,6 +16,7 @@
 
 package android.widget;
 
+import android.annotation.ColorInt;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActionBar;
@@ -666,7 +667,7 @@ public class Toolbar extends ViewGroup {
      *
      * @param color The new text color in 0xAARRGGBB format
      */
-    public void setTitleTextColor(int color) {
+    public void setTitleTextColor(@ColorInt int color) {
         mTitleTextColor = color;
         if (mTitleTextView != null) {
             mTitleTextView.setTextColor(color);
@@ -678,7 +679,7 @@ public class Toolbar extends ViewGroup {
      *
      * @param color The new text color in 0xAARRGGBB format
      */
-    public void setSubtitleTextColor(int color) {
+    public void setSubtitleTextColor(@ColorInt int color) {
         mSubtitleTextColor = color;
         if (mSubtitleTextView != null) {
             mSubtitleTextView.setTextColor(color);
