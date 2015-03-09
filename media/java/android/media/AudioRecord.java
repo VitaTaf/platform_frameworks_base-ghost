@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -239,7 +240,6 @@ public class AudioRecord
 
     /**
      * @hide
-     * CANDIDATE FOR PUBLIC API
      * Class constructor with {@link AudioAttributes} and {@link AudioFormat}.
      * @param attributes a non-null {@link AudioAttributes} instance. Use
      *     {@link AudioAttributes.Builder#setCapturePreset(int)} for configuring the capture
@@ -258,6 +258,7 @@ public class AudioRecord
      *   construction.
      * @throws IllegalArgumentException
      */
+    @SystemApi
     public AudioRecord(AudioAttributes attributes, AudioFormat format, int bufferSizeInBytes,
             int sessionId) throws IllegalArgumentException {
         mRecordingState = RECORDSTATE_STOPPED;
@@ -538,7 +539,7 @@ public class AudioRecord
         // audio source
         if ( (audioSource < MediaRecorder.AudioSource.DEFAULT) ||
              ((audioSource > MediaRecorder.getAudioSourceMax()) &&
-              (audioSource != MediaRecorder.AudioSource.FM_TUNER) &&
+              (audioSource != MediaRecorder.AudioSource.RADIO_TUNER) &&
               (audioSource != MediaRecorder.AudioSource.HOTWORD)) )  {
             throw new IllegalArgumentException("Invalid audio source.");
         }
