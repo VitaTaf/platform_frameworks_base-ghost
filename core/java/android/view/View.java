@@ -26,6 +26,7 @@ import android.annotation.IdRes;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.UiThread;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -692,6 +693,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @see android.view.ViewGroup
  */
+@UiThread
 public class View implements Drawable.Callback, KeyEvent.Callback,
         AccessibilityEventSource {
     private static final boolean DBG = false;
