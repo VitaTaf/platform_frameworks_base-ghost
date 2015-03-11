@@ -461,7 +461,7 @@ final class ActivityStack {
     }
 
     ActivityRecord isInStackLocked(IBinder token) {
-        final ActivityRecord r = ActivityRecord.forToken(token);
+        final ActivityRecord r = ActivityRecord.forTokenLocked(token);
         return isInStackLocked(r);
     }
 
@@ -470,7 +470,8 @@ final class ActivityStack {
             return null;
         }
         final TaskRecord task = r.task;
-        if (task != null && task.mActivities.contains(r) && mTaskHistory.contains(task)) {
+        if (task != null && task.stack != null
+                && task.mActivities.contains(r) && mTaskHistory.contains(task)) {
             if (task.stack != this) Slog.w(TAG,
                     "Illegal state! task does not point to stack it is in.");
             return r;
@@ -2775,7 +2776,7 @@ final class ActivityStack {
             return false;
         }
 
-        r.makeFinishing();
+        r.makeFinishingLocked();
         final TaskRecord task = r.task;
         EventLog.writeEvent(EventLogTags.AM_FINISH_ACTIVITY,
                 r.userId, System.identityHashCode(r),
@@ -2878,7 +2879,7 @@ final class ActivityStack {
                 || prevState == ActivityState.INITIALIZING) {
             // If this activity is already stopped, we can just finish
             // it right now.
-            r.makeFinishing();
+            r.makeFinishingLocked();
             boolean activityRemoved = destroyActivityLocked(r, true, "finish-imm");
             if (activityRemoved) {
                 mStackSupervisor.resumeTopActivitiesLocked();
@@ -2954,9 +2955,8 @@ final class ActivityStack {
         return false;
     }
 
-    final boolean navigateUpToLocked(IBinder token, Intent destIntent, int resultCode,
+    final boolean navigateUpToLocked(ActivityRecord srec, Intent destIntent, int resultCode,
             Intent resultData) {
-        final ActivityRecord srec = ActivityRecord.forToken(token);
         final TaskRecord task = srec.task;
         final ArrayList<ActivityRecord> activities = task.mActivities;
         final int start = activities.indexOf(srec);
@@ -3101,7 +3101,7 @@ final class ActivityStack {
     private void removeActivityFromHistoryLocked(ActivityRecord r, String reason) {
         mStackSupervisor.removeChildActivityContainers(r);
         finishActivityResultsLocked(r, Activity.RESULT_CANCELED, null);
-        r.makeFinishing();
+        r.makeFinishingLocked();
         if (DEBUG_ADD_REMOVE) {
             RuntimeException here = new RuntimeException("here");
             here.fillInStackTrace();
@@ -3342,7 +3342,7 @@ final class ActivityStack {
     final void activityDestroyedLocked(IBinder token, String reason) {
         final long origId = Binder.clearCallingIdentity();
         try {
-            ActivityRecord r = ActivityRecord.forToken(token);
+            ActivityRecord r = ActivityRecord.forTokenLocked(token);
             if (r != null) {
                 mHandler.removeMessages(DESTROY_TIMEOUT_MSG, r);
             }
@@ -3905,7 +3905,7 @@ final class ActivityStack {
                 }
             }
         }
-        final ActivityRecord r = ActivityRecord.forToken(token);
+        final ActivityRecord r = ActivityRecord.forTokenLocked(token);
         if (r == null) {
             return false;
         }

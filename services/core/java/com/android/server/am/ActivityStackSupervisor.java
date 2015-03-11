@@ -393,6 +393,10 @@ public final class ActivityStackSupervisor implements DisplayListener {
     /** Top of all visible stacks. Use {@link ActivityStack#isStackVisibleLocked} to determine if a
      * specific stack is visible or not. */
     boolean isFrontStack(ActivityStack stack) {
+        if (stack == null) {
+            return false;
+        }
+
         final ActivityRecord parent = stack.mActivityContainer.mParentActivity;
         if (parent != null) {
             stack = parent.task.stack;
@@ -1374,6 +1378,9 @@ public final class ActivityStackSupervisor implements DisplayListener {
                 return ActivityManager.START_FORWARD_AND_REQUEST_CONFLICT;
             }
             resultRecord = sourceRecord.resultTo;
+            if (resultRecord != null && !resultRecord.isInStackLocked()) {
+                resultRecord = null;
+            }
             resultWho = sourceRecord.resultWho;
             requestCode = sourceRecord.requestCode;
             sourceRecord.resultTo = null;
@@ -1555,7 +1562,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
         // On leanback only devices we should keep all activities in the same stack.
         if (!mLeanbackOnlyDevice &&
                 (r.isApplicationActivity() || (task != null && task.isApplicationTask()))) {
-            if (task != null) {
+            if (task != null && task.stack != null) {
                 final ActivityStack taskStack = task.stack;
                 if (taskStack.isOnHomeDisplay()) {
                     if (mFocusedStack != taskStack) {
@@ -1666,7 +1673,8 @@ public final class ActivityStackSupervisor implements DisplayListener {
                 && !launchSingleTask && !launchSingleInstance
                 && (launchFlags & Intent.FLAG_ACTIVITY_NEW_DOCUMENT) != 0;
 
-        if (r.resultTo != null && (launchFlags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
+        if (r.resultTo != null && (launchFlags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0
+                && r.resultTo.task.stack != null) {
             // For whatever reason this activity is being launched into a new
             // task...  yet the caller has requested a result back.  Well, that
             // is pretty messed up, so instead immediately send back a cancel
@@ -2068,7 +2076,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
             }
 
         } else {
-            if (r.resultTo != null) {
+            if (r.resultTo != null && r.resultTo.task.stack != null) {
                 r.resultTo.task.stack.sendActivityResultLocked(-1, r.resultTo, r.resultWho,
                         r.requestCode, Activity.RESULT_CANCELED, null);
             }
@@ -2302,7 +2310,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
         boolean booting = false;
         boolean activityRemoved = false;
 
-        ActivityRecord r = ActivityRecord.forToken(token);
+        ActivityRecord r = ActivityRecord.forTokenLocked(token);
         if (r != null) {
             if (DEBUG_IDLE) Slog.d(TAG, "activityIdleInternalLocked: Callers=" +
                     Debug.getCallers(4));
@@ -2350,13 +2358,13 @@ public final class ActivityStackSupervisor implements DisplayListener {
         // Atomically retrieve all of the other things to do.
         stops = processStoppingActivitiesLocked(true);
         NS = stops != null ? stops.size() : 0;
-        if ((NF=mFinishingActivities.size()) > 0) {
-            finishes = new ArrayList<ActivityRecord>(mFinishingActivities);
+        if ((NF = mFinishingActivities.size()) > 0) {
+            finishes = new ArrayList<>(mFinishingActivities);
             mFinishingActivities.clear();
         }
 
         if (mStartingUsers.size() > 0) {
-            startingUsers = new ArrayList<UserStartedState>(mStartingUsers);
+            startingUsers = new ArrayList<>(mStartingUsers);
             mStartingUsers.clear();
         }
 
@@ -2365,10 +2373,12 @@ public final class ActivityStackSupervisor implements DisplayListener {
         for (int i = 0; i < NS; i++) {
             r = stops.get(i);
             final ActivityStack stack = r.task.stack;
-            if (r.finishing) {
-                stack.finishCurrentActivityLocked(r, ActivityStack.FINISH_IMMEDIATELY, false);
-            } else {
-                stack.stopActivityLocked(r);
+            if (stack != null) {
+                if (r.finishing) {
+                    stack.finishCurrentActivityLocked(r, ActivityStack.FINISH_IMMEDIATELY, false);
+                } else {
+                    stack.stopActivityLocked(r);
+                }
             }
         }
 
@@ -2376,7 +2386,10 @@ public final class ActivityStackSupervisor implements DisplayListener {
         // waiting for the next one to start.
         for (int i = 0; i < NF; i++) {
             r = finishes.get(i);
-            activityRemoved |= r.task.stack.destroyActivityLocked(r, true, "finish-idle");
+            final ActivityStack stack = r.task.stack;
+            if (stack != null) {
+                activityRemoved |= stack.destroyActivityLocked(r, true, "finish-idle");
+            }
         }
 
         if (!booting) {
@@ -2544,6 +2557,11 @@ public final class ActivityStackSupervisor implements DisplayListener {
             // Caller wants the home activity moved with it.  To accomplish this,
             // we'll just indicate that this task returns to the home task.
             task.setTaskToReturnTo(HOME_ACTIVITY_TYPE);
+        }
+        if (task.stack == null) {
+            Slog.e(TAG, "findTaskToMoveToFrontLocked: can't move task="
+                    + task + " to front. Stack is null");
+            return;
         }
         task.stack.moveTaskToFrontLocked(task, false /* noAnimation */, options, reason);
         if (DEBUG_STACK) Slog.d(TAG, "findTaskToMoveToFront: moved to front of stack="
@@ -3764,7 +3782,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
                 } break;
                 case LAUNCH_TASK_BEHIND_COMPLETE: {
                     synchronized (mService) {
-                        ActivityRecord r = ActivityRecord.forToken((IBinder) msg.obj);
+                        ActivityRecord r = ActivityRecord.forTokenLocked((IBinder) msg.obj);
                         if (r != null) {
                             handleLaunchTaskBehindCompleteLocked(r);
                         }
