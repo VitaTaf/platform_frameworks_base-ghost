@@ -375,10 +375,8 @@ public class TaskStack {
             mService.requestTraversalLocked();
         }
 
-        mAnimationBackgroundSurface.destroySurface();
-        mAnimationBackgroundSurface = null;
-        mDimLayer.destroySurface();
-        mDimLayer = null;
+        close();
+
         mDisplayContent = null;
     }
 
@@ -503,8 +501,14 @@ public class TaskStack {
     }
 
     void close() {
-        mDimLayer.mDimSurface.destroy();
-        mAnimationBackgroundSurface.mDimSurface.destroy();
+        if (mAnimationBackgroundSurface != null) {
+            mAnimationBackgroundSurface.destroySurface();
+            mAnimationBackgroundSurface = null;
+        }
+        if (mDimLayer != null) {
+            mDimLayer.destroySurface();
+            mDimLayer = null;
+        }
     }
 
     public void dump(String prefix, PrintWriter pw) {
