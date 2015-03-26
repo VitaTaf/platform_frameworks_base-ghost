@@ -3227,9 +3227,9 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     private static class ForegroundInfo {
         private Drawable mDrawable;
         private TintInfo mTintInfo;
-        private int mGravity = Gravity.START | Gravity.TOP;
+        private int mGravity = Gravity.FILL;
         private boolean mInsidePadding = true;
-        private boolean mBoundsChanged;
+        private boolean mBoundsChanged = true;
         private final Rect mSelfBounds = new Rect();
         private final Rect mOverlayBounds = new Rect();
     }
@@ -16629,6 +16629,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         }
 
         mForegroundInfo.mDrawable = foreground;
+        mForegroundInfo.mBoundsChanged = true;
         if (foreground != null) {
             setWillNotDraw(false);
             foreground.setCallback(this);
