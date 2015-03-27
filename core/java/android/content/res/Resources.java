@@ -97,12 +97,12 @@ public class Resources {
     // single-threaded, and after that these are immutable.
     private static final LongSparseArray<ConstantState>[] sPreloadedDrawables;
     private static final LongSparseArray<ConstantState> sPreloadedColorDrawables
-            = new LongSparseArray<ConstantState>();
+            = new LongSparseArray<>();
     private static final LongSparseArray<ColorStateListFactory> sPreloadedColorStateLists
-            = new LongSparseArray<ColorStateListFactory>();
+            = new LongSparseArray<>();
 
     // Pool of TypedArrays targeted to this Resources object.
-    final SynchronizedPool<TypedArray> mTypedArrayPool = new SynchronizedPool<TypedArray>(5);
+    final SynchronizedPool<TypedArray> mTypedArrayPool = new SynchronizedPool<>(5);
 
     // Used by BridgeResources in layoutlib
     static Resources mSystem = null;
@@ -114,20 +114,18 @@ public class Resources {
     private final Object mAccessLock = new Object();
     private final Configuration mTmpConfig = new Configuration();
     private final ArrayMap<String, LongSparseArray<WeakReference<ConstantState>>> mDrawableCache =
-            new ArrayMap<String, LongSparseArray<WeakReference<ConstantState>>>();
+            new ArrayMap<>();
     private final ArrayMap<String, LongSparseArray<WeakReference<ConstantState>>> mColorDrawableCache =
-            new ArrayMap<String, LongSparseArray<WeakReference<ConstantState>>>();
+            new ArrayMap<>();
     private final ConfigurationBoundResourceCache<ColorStateList> mColorStateListCache =
-            new ConfigurationBoundResourceCache<ColorStateList>(this);
+            new ConfigurationBoundResourceCache<>(this);
     private final ConfigurationBoundResourceCache<Animator> mAnimatorCache =
-            new ConfigurationBoundResourceCache<Animator>(this);
+            new ConfigurationBoundResourceCache<>(this);
     private final ConfigurationBoundResourceCache<StateListAnimator> mStateListAnimatorCache =
-            new ConfigurationBoundResourceCache<StateListAnimator>(this);
+            new ConfigurationBoundResourceCache<>(this);
 
     private TypedValue mTmpValue = new TypedValue();
     private boolean mPreloading;
-
-    private TypedArray mCachedStyledAttributes = null;
 
     private int mLastCachedXmlBlockIndex = -1;
     private final int[] mCachedXmlBlockIds = { 0, 0, 0, 0 };
@@ -143,8 +141,8 @@ public class Resources {
 
     static {
         sPreloadedDrawables = new LongSparseArray[2];
-        sPreloadedDrawables[0] = new LongSparseArray<ConstantState>();
-        sPreloadedDrawables[1] = new LongSparseArray<ConstantState>();
+        sPreloadedDrawables[0] = new LongSparseArray<>();
+        sPreloadedDrawables[1] = new LongSparseArray<>();
     }
 
     /**
@@ -1853,7 +1851,7 @@ public class Resources {
             // the framework.
             mCompatibilityInfo.applyToDisplayMetrics(mMetrics);
 
-            int configChanges = calcConfigChanges(config);
+            final int configChanges = calcConfigChanges(config);
             if (mConfiguration.locale == null) {
                 mConfiguration.locale = Locale.getDefault();
                 mConfiguration.setLayoutDirection(mConfiguration.locale);
@@ -1868,7 +1866,8 @@ public class Resources {
             if (mConfiguration.locale != null) {
                 locale = adjustLanguageTag(mConfiguration.locale.toLanguageTag());
             }
-            int width, height;
+
+            final int width, height;
             if (mMetrics.widthPixels >= mMetrics.heightPixels) {
                 width = mMetrics.widthPixels;
                 height = mMetrics.heightPixels;
@@ -1878,12 +1877,15 @@ public class Resources {
                 //noinspection SuspiciousNameCombination
                 height = mMetrics.widthPixels;
             }
-            int keyboardHidden = mConfiguration.keyboardHidden;
-            if (keyboardHidden == Configuration.KEYBOARDHIDDEN_NO
-                    && mConfiguration.hardKeyboardHidden
-                            == Configuration.HARDKEYBOARDHIDDEN_YES) {
+
+            final int keyboardHidden;
+            if (mConfiguration.keyboardHidden == Configuration.KEYBOARDHIDDEN_NO
+                    && mConfiguration.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
                 keyboardHidden = Configuration.KEYBOARDHIDDEN_SOFT;
+            } else {
+                keyboardHidden = mConfiguration.keyboardHidden;
             }
+
             mAssets.setConfiguration(mConfiguration.mcc, mConfiguration.mnc,
                     locale, mConfiguration.orientation,
                     mConfiguration.touchscreen,
@@ -2485,10 +2487,10 @@ public class Resources {
                     // Clean out the caches before we add more. This shouldn't
                     // happen very often.
                     pruneCaches(caches);
-                    themedCache = new LongSparseArray<WeakReference<ConstantState>>(1);
+                    themedCache = new LongSparseArray<>(1);
                     caches.put(themeKey, themedCache);
                 }
-                themedCache.put(key, new WeakReference<ConstantState>(cs));
+                themedCache.put(key, new WeakReference<>(cs));
             }
         }
     }
@@ -2805,15 +2807,6 @@ public class Resources {
         throw new NotFoundException(
                 "File " + file + " from xml type " + type + " resource ID #0x"
                 + Integer.toHexString(id));
-    }
-
-    /*package*/ void recycleCachedStyledAttributes(TypedArray attrs) {
-        synchronized (mAccessLock) {
-            final TypedArray cached = mCachedStyledAttributes;
-            if (cached == null || cached.mData.length < attrs.mData.length) {
-                mCachedStyledAttributes = attrs;
-            }
-        }
     }
 
     /**
