@@ -517,7 +517,7 @@ public class RippleDrawable extends LayerDrawable {
         }
 
         if (state.mColor != null && state.mColor.canApplyTheme()) {
-            state.mColor.applyTheme(t);
+            state.mColor = state.mColor.obtainForTheme(t);
         }
 
         updateLocalState();
@@ -1004,6 +1004,12 @@ public class RippleDrawable extends LayerDrawable {
         @Override
         public Drawable newDrawable(Resources res) {
             return new RippleDrawable(this, res);
+        }
+
+        @Override
+        public int getChangingConfigurations() {
+            return super.getChangingConfigurations()
+                    | (mColor != null ? mColor.getChangingConfigurations() : 0);
         }
     }
 

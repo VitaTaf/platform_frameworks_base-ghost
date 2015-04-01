@@ -325,6 +325,9 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             final Drawable d = layer.mDrawable;
             if (d.canApplyTheme()) {
                 d.applyTheme(t);
+
+                // Update cached mask of child changing configurations.
+                state.mChildrenChangingConfigurations |= d.getChangingConfigurations();
             }
         }
 
@@ -914,9 +917,7 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
 
     @Override
     public int getChangingConfigurations() {
-        return super.getChangingConfigurations()
-                | mLayerState.mChangingConfigurations
-                | mLayerState.mChildrenChangingConfigurations;
+        return super.getChangingConfigurations() | mLayerState.getChangingConfigurations();
     }
 
     @Override
@@ -1756,7 +1757,8 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
 
         @Override
         public int getChangingConfigurations() {
-            return mChangingConfigurations;
+            return mChangingConfigurations
+                    | mChildrenChangingConfigurations;
         }
 
         public final int getOpacity() {
