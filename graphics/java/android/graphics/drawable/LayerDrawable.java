@@ -165,7 +165,6 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
 
         ensurePadding();
         refreshPadding();
-        onStateChange(getState());
     }
 
     /**
@@ -336,7 +335,6 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         }
 
         ensurePadding();
-        onStateChange(getState());
     }
 
     @Override
