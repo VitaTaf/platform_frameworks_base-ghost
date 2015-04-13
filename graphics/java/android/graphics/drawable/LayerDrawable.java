@@ -326,7 +326,7 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             }
 
             final Drawable d = layer.mDrawable;
-            if (d.canApplyTheme()) {
+            if (d != null && d.canApplyTheme()) {
                 d.applyTheme(t);
 
                 // Update cached mask of child changing configurations.
@@ -913,7 +913,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.draw(canvas);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.draw(canvas);
+            }
         }
     }
 
@@ -1173,13 +1176,15 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
      */
     @Override
     public void getOutline(@NonNull Outline outline) {
-        final LayerState state = mLayerState;
-        final ChildDrawable[] children = state.mChildren;
-        final int N = state.mNum;
+        final ChildDrawable[] array = mLayerState.mChildren;
+        final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            children[i].mDrawable.getOutline(outline);
-            if (!outline.isEmpty()) {
-                return;
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.getOutline(outline);
+                if (!outline.isEmpty()) {
+                    return;
+                }
             }
         }
     }
@@ -1189,7 +1194,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setHotspot(x, y);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setHotspot(x, y);
+            }
         }
     }
 
@@ -1198,7 +1206,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setHotspotBounds(left, top, right, bottom);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setHotspotBounds(left, top, right, bottom);
+            }
         }
 
         if (mHotspotBounds == null) {
@@ -1223,7 +1234,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setVisible(visible, restart);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setVisible(visible, restart);
+            }
         }
 
         return changed;
@@ -1234,17 +1248,18 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setDither(dither);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setDither(dither);
+            }
         }
     }
 
     @Override
     public boolean getDither() {
-        final ChildDrawable[] array = mLayerState.mChildren;
-        if (mLayerState.mNum > 0) {
-            // All layers should have the same dither set on them - just return
-            // the first one
-            return array[0].mDrawable.getDither();
+        final Drawable dr = getFirstNonNullDrawable();
+        if (dr != null) {
+            return dr.getDither();
         } else {
             return super.getDither();
         }
@@ -1255,17 +1270,18 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setAlpha(alpha);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setAlpha(alpha);
+            }
         }
     }
 
     @Override
     public int getAlpha() {
-        final ChildDrawable[] array = mLayerState.mChildren;
-        if (mLayerState.mNum > 0) {
-            // All layers should have the same alpha set on them - just return
-            // the first one
-            return array[0].mDrawable.getAlpha();
+        final Drawable dr = getFirstNonNullDrawable();
+        if (dr != null) {
+            return dr.getAlpha();
         } else {
             return super.getAlpha();
         }
@@ -1276,7 +1292,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setColorFilter(colorFilter);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setColorFilter(colorFilter);
+            }
         }
     }
 
@@ -1285,7 +1304,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setTintList(tint);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setTintList(tint);
+            }
         }
     }
 
@@ -1294,8 +1316,23 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setTintMode(tintMode);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setTintMode(tintMode);
+            }
         }
+    }
+
+    private Drawable getFirstNonNullDrawable() {
+        final ChildDrawable[] array = mLayerState.mChildren;
+        final int N = mLayerState.mNum;
+        for (int i = 0; i < N; i++) {
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                return dr;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1328,7 +1365,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.setAutoMirrored(mirrored);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.setAutoMirrored(mirrored);
+            }
         }
     }
 
@@ -1349,9 +1389,9 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            final ChildDrawable r = array[i];
-            if (r.mDrawable.isStateful() && r.mDrawable.setState(state)) {
-                refreshChildPadding(i, r);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null && dr.isStateful() && dr.setState(state)) {
+                refreshChildPadding(i, array[i]);
                 changed = true;
             }
         }
@@ -1370,9 +1410,9 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            final ChildDrawable r = array[i];
-            if (r.mDrawable.setLevel(level)) {
-                refreshChildPadding(i, r);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null && dr.setLevel(level)) {
+                refreshChildPadding(i, array[i]);
                 changed = true;
             }
         }
@@ -1403,6 +1443,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         for (int i = 0; i < N; i++) {
             final ChildDrawable r = array[i];
             final Drawable d = r.mDrawable;
+            if (d == null) {
+                continue;
+            }
+
             final Rect container = mTmpContainer;
             container.set(d.getBounds());
 
@@ -1497,6 +1541,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
             final ChildDrawable r = array[i];
+            if (r.mDrawable == null) {
+                continue;
+            }
+
             final int minWidth = r.mWidth < 0 ? r.mDrawable.getIntrinsicWidth() : r.mWidth;
             final int w = minWidth + r.mInsetL + r.mInsetR + padL + padR;
             if (w > width) {
@@ -1523,6 +1571,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
             final ChildDrawable r = array[i];
+            if (r.mDrawable == null) {
+                continue;
+            }
+
             final int minHeight = r.mHeight < 0 ? r.mDrawable.getIntrinsicHeight() : r.mHeight;
             final int h = minHeight + r.mInsetT + r.mInsetB + padT + padB;
             if (h > height) {
@@ -1544,15 +1596,17 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
      * @return true if the child's padding has changed
      */
     private boolean refreshChildPadding(int i, ChildDrawable r) {
-        final Rect rect = mTmpRect;
-        r.mDrawable.getPadding(rect);
-        if (rect.left != mPaddingL[i] || rect.top != mPaddingT[i] ||
-                rect.right != mPaddingR[i] || rect.bottom != mPaddingB[i]) {
-            mPaddingL[i] = rect.left;
-            mPaddingT[i] = rect.top;
-            mPaddingR[i] = rect.right;
-            mPaddingB[i] = rect.bottom;
-            return true;
+        if (r.mDrawable != null) {
+            final Rect rect = mTmpRect;
+            r.mDrawable.getPadding(rect);
+            if (rect.left != mPaddingL[i] || rect.top != mPaddingT[i] ||
+                    rect.right != mPaddingR[i] || rect.bottom != mPaddingB[i]) {
+                mPaddingL[i] = rect.left;
+                mPaddingT[i] = rect.top;
+                mPaddingR[i] = rect.right;
+                mPaddingB[i] = rect.bottom;
+                return true;
+            }
         }
         return false;
     }
@@ -1596,7 +1650,10 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             final ChildDrawable[] array = mLayerState.mChildren;
             final int N = mLayerState.mNum;
             for (int i = 0; i < N; i++) {
-                array[i].mDrawable.mutate();
+                final Drawable dr = array[i].mDrawable;
+                if (dr != null) {
+                    dr.mutate();
+                }
             }
             mMutated = true;
         }
@@ -1608,10 +1665,14 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
      */
     public void clearMutated() {
         super.clearMutated();
+
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            array[i].mDrawable.clearMutated();
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                dr.clearMutated();
+            }
         }
         mMutated = false;
     }
@@ -1619,11 +1680,16 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
     @Override
     public boolean onLayoutDirectionChange(int layoutDirection) {
         boolean changed = false;
+
         final ChildDrawable[] array = mLayerState.mChildren;
         final int N = mLayerState.mNum;
         for (int i = 0; i < N; i++) {
-            changed |= array[i].mDrawable.setLayoutDirection(layoutDirection);
+            final Drawable dr = array[i].mDrawable;
+            if (dr != null) {
+                changed |= dr.setLayoutDirection(layoutDirection);
+            }
         }
+
         updateLayerBounds(getBounds());
         return changed;
     }
@@ -1644,15 +1710,24 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
         }
 
         ChildDrawable(ChildDrawable orig, LayerDrawable owner, Resources res) {
-            if (res != null) {
-                mDrawable = orig.mDrawable.getConstantState().newDrawable(res);
+            final Drawable dr = orig.mDrawable;
+            final Drawable clone;
+            if (dr != null) {
+                final ConstantState cs = dr.getConstantState();
+                if (res != null) {
+                    clone = cs.newDrawable(res);
+                } else {
+                    clone = cs.newDrawable();
+                }
+                clone.setCallback(owner);
+                clone.setLayoutDirection(dr.getLayoutDirection());
+                clone.setBounds(dr.getBounds());
+                clone.setLevel(dr.getLevel());
             } else {
-                mDrawable = orig.mDrawable.getConstantState().newDrawable();
+                clone = null;
             }
-            mDrawable.setCallback(owner);
-            mDrawable.setLayoutDirection(orig.mDrawable.getLayoutDirection());
-            mDrawable.setBounds(orig.mDrawable.getBounds());
-            mDrawable.setLevel(orig.mDrawable.getLevel());
+
+            mDrawable = clone;
             mThemeAttrs = orig.mThemeAttrs;
             mInsetL = orig.mInsetL;
             mInsetT = orig.mInsetT;
@@ -1664,6 +1739,11 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             mHeight = orig.mHeight;
             mGravity = orig.mGravity;
             mId = orig.mId;
+        }
+
+        public boolean canApplyTheme() {
+            return mThemeAttrs != null
+                    || (mDrawable != null && mDrawable.canApplyTheme());
         }
     }
 
@@ -1739,7 +1819,7 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             final int N = mNum;
             for (int i = 0; i < N; i++) {
                 final ChildDrawable layer = array[i];
-                if (layer.mThemeAttrs != null || layer.mDrawable.canApplyTheme()) {
+                if (layer.canApplyTheme()) {
                     return true;
                 }
             }
@@ -1770,9 +1850,29 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
 
             final ChildDrawable[] array = mChildren;
             final int N = mNum;
-            int op = N > 0 ? array[0].mDrawable.getOpacity() : PixelFormat.TRANSPARENT;
-            for (int i = 1; i < N; i++) {
-                op = Drawable.resolveOpacity(op, array[i].mDrawable.getOpacity());
+
+            // Seek to the first non-null drawable.
+            int firstIndex = -1;
+            for (int i = 0; i < N; i++) {
+                if (array[i].mDrawable != null) {
+                    firstIndex = i;
+                    break;
+                }
+            }
+
+            int op;
+            if (firstIndex >= 0) {
+                op = array[firstIndex].mDrawable.getOpacity();
+            } else {
+                op = PixelFormat.TRANSPARENT;
+            }
+
+            // Merge all remaining non-null drawables.
+            for (int i = firstIndex + 1; i < N; i++) {
+                final Drawable dr = array[i].mDrawable;
+                if (dr != null) {
+                    op = Drawable.resolveOpacity(op, dr.getOpacity());
+                }
             }
 
             mOpacity = op;
@@ -1789,7 +1889,8 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             final int N = mNum;
             boolean isStateful = false;
             for (int i = 0; i < N; i++) {
-                if (array[i].mDrawable.isStateful()) {
+                final Drawable dr = array[i].mDrawable;
+                if (dr != null && dr.isStateful()) {
                     isStateful = true;
                     break;
                 }
@@ -1804,7 +1905,8 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             final ChildDrawable[] array = mChildren;
             final int N = mNum;
             for (int i = 0; i < N; i++) {
-                if (array[i].mDrawable.getConstantState() == null) {
+                final Drawable dr = array[i].mDrawable;
+                if (dr != null && dr.getConstantState() == null) {
                     return false;
                 }
             }
@@ -1824,9 +1926,12 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
             final int N = mNum;
             int pixelCount = 0;
             for (int i = 0; i < N; i++) {
-                final ConstantState state = array[i].mDrawable.getConstantState();
-                if (state != null) {
-                    pixelCount += state.addAtlasableBitmaps(atlasList);
+                final Drawable dr = array[i].mDrawable;
+                if (dr != null) {
+                    final ConstantState state = dr.getConstantState();
+                    if (state != null) {
+                        pixelCount += state.addAtlasableBitmaps(atlasList);
+                    }
                 }
             }
             return pixelCount;
