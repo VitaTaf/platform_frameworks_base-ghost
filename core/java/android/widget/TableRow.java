@@ -285,7 +285,7 @@ public class TableRow extends LinearLayout {
      *         column, in this row
      * {@hide}
      */
-    int[] getColumnsWidths(int widthMeasureSpec) {
+    int[] getColumnsWidths(int widthMeasureSpec, int heightMeasureSpec) {
         final int numColumns = getVirtualChildCount();
         if (mColumnWidths == null || numColumns != mColumnWidths.length) {
             mColumnWidths = new int[numColumns];
@@ -304,7 +304,9 @@ public class TableRow extends LinearLayout {
                             spec = getChildMeasureSpec(widthMeasureSpec, 0, LayoutParams.WRAP_CONTENT);
                             break;
                         case LayoutParams.MATCH_PARENT:
-                            spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+                            spec = MeasureSpec.makeMeasureSpec(
+                                    MeasureSpec.getSize(heightMeasureSpec),
+                                    MeasureSpec.UNSPECIFIED);
                             break;
                         default:
                             spec = MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.EXACTLY);
