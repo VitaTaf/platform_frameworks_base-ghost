@@ -3693,6 +3693,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * This value is relative to the {@link #getChildAt(int) index} values in the normal
      * child list of this container, where any transient view at a particular index will
      * be drawn before any normal child at that same index.
+     *
+     * @hide
      */
     public void addTransientView(View view, int index) {
         if (index < 0) {
@@ -3726,6 +3728,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * such transient view, this method does nothing.
      *
      * @param view The transient view to be removed
+     *
+     * @hide
      */
     public void removeTransientView(View view) {
         if (mTransientViews == null) {
@@ -3751,6 +3755,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      *
      * @see #addTransientView(View, int)
      * @return The number of transient views in this container
+     *
+     * @hide
      */
     public int getTransientViewCount() {
         return mTransientIndices == null ? 0 : mTransientIndices.size();
@@ -3764,6 +3770,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * and less than the value returned by {@link #getTransientViewCount()}.
      * @return The index of the transient view stored in the given position if the
      * position is valid, otherwise -1
+     *
+     * @hide
      */
     public int getTransientViewIndex(int position) {
         if (position < 0 || mTransientIndices == null || position >= mTransientIndices.size()) {
@@ -3780,6 +3788,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
      * and less than the value returned by {@link #getTransientViewCount()}.
      * @return The transient view stored in the given position if the
      * position is valid, otherwise null
+     *
+     * @hide
      */
     public View getTransientView(int position) {
         if (mTransientViews == null || position >= mTransientViews.size()) {
