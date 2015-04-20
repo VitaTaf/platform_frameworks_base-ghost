@@ -52,10 +52,12 @@ public class ViewGroup_Delegate {
             long drawingTime) {
         boolean retVal = thisVG.drawChild_Original(canvas, child, drawingTime);
         if (child.getZ() > thisVG.getZ()) {
+            // The background's bounds are set lazily. Make sure they are set correctly so that
+            // the outline obtained is correct.
+            child.setBackgroundBounds();
             ViewOutlineProvider outlineProvider = child.getOutlineProvider();
-            Outline outline = new Outline();
+            Outline outline = child.mAttachInfo.mTmpOutline;
             outlineProvider.getOutline(child, outline);
-
             if (outline.mPath != null || (outline.mRect != null && !outline.mRect.isEmpty())) {
                 int restoreTo = transformCanvas(thisVG, canvas, child);
                 drawShadow(thisVG, canvas, child, outline);
