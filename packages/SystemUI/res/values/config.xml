@@ -292,5 +292,9 @@
 
     <!-- Enable the default volume dialog -->
     <bool name="enable_volume_ui">true</bool>
+
+    <!-- Duration of the expansion animation in the volume dialog -->
+    <item name="volume_expand_animation_duration" type="integer">300</item>
+
 </resources>
 
