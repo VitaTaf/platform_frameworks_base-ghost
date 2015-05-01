@@ -41,7 +41,7 @@ public class GhostView extends View {
         final ViewGroup parent = (ViewGroup) mView.getParent();
         mView.setTransitionVisibility(View.INVISIBLE);
         parent.mRecreateDisplayList = true;
-        parent.getDisplayList();
+        parent.updateDisplayListIfDirty();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class GhostView extends View {
         if (canvas instanceof GLES20Canvas) {
             GLES20Canvas dlCanvas = (GLES20Canvas) canvas;
             mView.mRecreateDisplayList = true;
-            RenderNode renderNode = mView.getDisplayList();
+            RenderNode renderNode = mView.updateDisplayListIfDirty();
             if (renderNode.isValid()) {
                 dlCanvas.insertReorderBarrier(); // enable shadow for this rendernode
                 dlCanvas.drawRenderNode(renderNode);
@@ -80,7 +80,7 @@ public class GhostView extends View {
             final ViewGroup parent = (ViewGroup) mView.getParent();
             if (parent != null) {
                 parent.mRecreateDisplayList = true;
-                parent.getDisplayList();
+                parent.updateDisplayListIfDirty();
             }
         }
     }
