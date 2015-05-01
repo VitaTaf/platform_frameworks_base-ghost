@@ -1360,7 +1360,8 @@ class FastScroller {
                     // to intercept events. If it does, we will receive a CANCEL
                     // event.
                     if (!mList.isInScrollingContainer()) {
-                        beginDrag();
+                        // This will get dispatched to onTouchEvent(). Start
+                        // dragging there.
                         return true;
                     }
 
@@ -1377,6 +1378,8 @@ class FastScroller {
                     final float pos = getPosFromMotionEvent(mInitialTouchY);
                     scrollTo(pos);
 
+                    // This may get dispatched to onTouchEvent(), but it
+                    // doesn't really matter since we'll already be in a drag.
                     return onTouchEvent(ev);
                 }
                 break;
@@ -1411,6 +1414,15 @@ class FastScroller {
         }
 
         switch (me.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN: {
+                if (isPointInside(me.getX(), me.getY())) {
+                    if (!mList.isInScrollingContainer()) {
+                        beginDrag();
+                        return true;
+                    }
+                }
+            } break;
+
             case MotionEvent.ACTION_UP: {
                 if (mPendingDrag >= 0) {
                     // Allow a tap to scroll.
