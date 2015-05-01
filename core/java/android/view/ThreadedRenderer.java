@@ -270,7 +270,7 @@ public class ThreadedRenderer extends HardwareRenderer {
         view.mRecreateDisplayList = (view.mPrivateFlags & View.PFLAG_INVALIDATED)
                 == View.PFLAG_INVALIDATED;
         view.mPrivateFlags &= ~View.PFLAG_INVALIDATED;
-        view.updateDisplayListIfDirty();
+        view.getDisplayList();
         view.mRecreateDisplayList = false;
     }
 
@@ -286,7 +286,7 @@ public class ThreadedRenderer extends HardwareRenderer {
                 callbacks.onHardwarePreDraw(canvas);
 
                 canvas.insertReorderBarrier();
-                canvas.drawRenderNode(view.updateDisplayListIfDirty());
+                canvas.drawRenderNode(view.getDisplayList());
                 canvas.insertInorderBarrier();
 
                 callbacks.onHardwarePostDraw(canvas);
