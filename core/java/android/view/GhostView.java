@@ -40,8 +40,7 @@ public class GhostView extends View {
         mView.mGhostView = this;
         final ViewGroup parent = (ViewGroup) mView.getParent();
         mView.setTransitionVisibility(View.INVISIBLE);
-        parent.mRecreateDisplayList = true;
-        parent.updateDisplayListIfDirty();
+        parent.invalidate();
     }
 
     @Override
