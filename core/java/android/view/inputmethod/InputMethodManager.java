@@ -1285,14 +1285,14 @@ public final class InputMethodManager {
 
     void focusInLocked(View view) {
         if (DEBUG) Log.v(TAG, "focusIn: " + view);
-        
+
         if (mCurRootView != view.getRootView()) {
             // This is a request from a window that isn't in the window with
             // IME focus, so ignore it.
             if (DEBUG) Log.v(TAG, "Not IME target window, ignoring");
             return;
         }
-        
+
         mNextServedView = view;
         scheduleCheckFocusLocked(view);
     }
@@ -1388,7 +1388,7 @@ public final class InputMethodManager {
      * Called by ViewAncestor when its window gets input focus.
      * @hide
      */
-    public void onWindowFocus(View rootView, View focusedView, int softInputMode,
+    public void onPostWindowFocus(View rootView, View focusedView, int softInputMode,
             boolean first, int windowFlags) {
         boolean forceNewFocus = false;
         synchronized (mH) {
@@ -1437,14 +1437,27 @@ public final class InputMethodManager {
             }
         }
     }
-    
+
     /** @hide */
-    public void startGettingWindowFocus(View rootView) {
+    public void onPreWindowFocus(View rootView, boolean hasWindowFocus) {
         synchronized (mH) {
-            mCurRootView = rootView;
+            if (rootView == null) {
+                mCurRootView = null;
+            } if (hasWindowFocus) {
+                mCurRootView = rootView;
+            } else if (rootView == mCurRootView) {
+                // If the mCurRootView is losing window focus, release the strong reference to it
+                // so as not to prevent it from being garbage-collected.
+                mCurRootView = null;
+            } else {
+                if (DEBUG) {
+                    Log.v(TAG, "Ignoring onPreWindowFocus()."
+                            + " mCurRootView=" + mCurRootView + " rootView=" + rootView);
+                }
+            }
         }
     }
-    
+
     /**
      * Report the current selection range.
      *
