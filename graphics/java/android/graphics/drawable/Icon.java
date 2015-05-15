@@ -225,6 +225,7 @@ public final class Icon implements Parcelable {
                                     getResPackage()),
                             e);
                 }
+                break;
             case TYPE_DATA:
                 return new BitmapDrawable(context.getResources(),
                     BitmapFactory.decodeByteArray(getDataBytes(), getDataOffset(), getDataLength())
