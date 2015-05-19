@@ -145,7 +145,6 @@ public class ThreadedRenderer extends HardwareRenderer {
         mInitialized = true;
         updateEnabledState(surface);
         boolean status = nInitialize(mNativeProxy, surface);
-        surface.allocateBuffers();
         return status;
     }
 
