@@ -1796,6 +1796,9 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     /**
      * Indicates that we should awaken scroll bars once attached
      *
+     * PLEASE NOTE: This flag is now unused as we now send onVisibilityChanged
+     * during window attachment and it is no longer needed. Feel free to repurpose it.
+     *
      * @hide
      */
     private static final int PFLAG_AWAKEN_SCROLL_BARS_ON_ATTACH = 0x08000000;
@@ -8827,12 +8830,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      */
     protected void onVisibilityChanged(@NonNull View changedView, @Visibility int visibility) {
         final boolean visible = visibility == VISIBLE && getVisibility() == VISIBLE;
-        if (visible) {
-            if (mAttachInfo != null) {
-                initialAwakenScrollBars();
-            } else {
-                mPrivateFlags |= PFLAG_AWAKEN_SCROLL_BARS_ON_ATTACH;
-            }
+        if (visible && mAttachInfo != null) {
+            initialAwakenScrollBars();
         }
 
         final Drawable dr = mBackground;
@@ -9868,9 +9867,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             } else if (mParent != null) {
                 mParent.invalidateChild(this, null);
             }
-            dispatchVisibilityChanged(this, newVisibility);
 
-            notifySubtreeAccessibilityStateChangedIfNeeded();
+            if (mAttachInfo != null) {
+                dispatchVisibilityChanged(this, newVisibility);
+                notifySubtreeAccessibilityStateChangedIfNeeded();
+            }
         }
 
         if ((changed & WILL_NOT_CACHE_DRAWING) != 0) {
@@ -13185,11 +13186,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             mParent.requestTransparentRegion(this);
         }
 
-        if ((mPrivateFlags & PFLAG_AWAKEN_SCROLL_BARS_ON_ATTACH) != 0) {
-            initialAwakenScrollBars();
-            mPrivateFlags &= ~PFLAG_AWAKEN_SCROLL_BARS_ON_ATTACH;
-        }
-
         mPrivateFlags3 &= ~PFLAG3_IS_LAID_OUT;
 
         jumpDrawablesToCurrentState();
@@ -13630,6 +13626,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     }
 
     /**
+     * Return the visibility value of the least visible component passed.
+     */
+    int combineVisibility(int vis1, int vis2) {
+        // This works because VISIBLE < INVISIBLE < GONE.
+        return Math.max(vis1, vis2);
+    }
+
+    /**
      * @param info the {@link android.view.View.AttachInfo} to associated with
      *        this view
      */
@@ -13670,6 +13674,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         if (vis != GONE) {
             onWindowVisibilityChanged(vis);
         }
+
+        // Send onVisibilityChanged directly instead of dispatchVisibilityChanged.
+        // As all views in the subtree will already receive dispatchAttachedToWindow
+        // traversing the subtree again here is not desired.
+        onVisibilityChanged(this, visibility);
+
         if ((mPrivateFlags&PFLAG_DRAWABLE_STATE_DIRTY) != 0) {
             // If nobody has evaluated the drawable state yet, then do it now.
             refreshDrawableState();
