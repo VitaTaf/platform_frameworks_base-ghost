@@ -2624,7 +2624,8 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     void removeWindowLocked(WindowState win) {
-        if (win.mAttrs.type == TYPE_APPLICATION_STARTING) {
+        final boolean startingWindow = win.mAttrs.type == TYPE_APPLICATION_STARTING;
+        if (startingWindow) {
             if (DEBUG_STARTING_WINDOW) Slog.d(TAG, "Starting window removed " + win);
         }
 
@@ -2673,7 +2674,13 @@ public class WindowManagerService extends IWindowManager.Stub
                     mAccessibilityController.onWindowTransitionLocked(win, transit);
                 }
             }
-            if (win.mExiting || win.mWinAnimator.isAnimating()) {
+            final AppWindowToken appToken = win.mAppToken;
+            // The starting window is the last window in this app token and it isn't animating.
+            // Allow it to be removed now as there is no additional window or animation that will
+            // trigger its removal.
+            final boolean lastWinStartingNotAnimating = startingWindow && appToken!= null
+                    && appToken.allAppWindows.size() == 1 && !win.mWinAnimator.isWindowAnimating();
+            if (!lastWinStartingNotAnimating && (win.mExiting || win.mWinAnimator.isAnimating())) {
                 // The exit animation is running... wait for it!
                 //Slog.i(TAG, "*** Running exit animation...");
                 win.mExiting = true;
@@ -2685,8 +2692,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 final boolean focusChanged = updateFocusedWindowLocked(
                         UPDATE_FOCUS_WILL_PLACE_SURFACES, false /*updateInputWindows*/);
                 performLayoutAndPlaceSurfacesLocked();
-                if (win.mAppToken != null) {
-                    win.mAppToken.updateReportedVisibilityLocked();
+                if (appToken != null) {
+                    appToken.updateReportedVisibilityLocked();
                 }
                 if (focusChanged) {
                     mInputMonitor.updateInputWindowsLw(false /*force*/);
@@ -4615,7 +4622,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
             mOpeningApps.remove(wtoken);
             mClosingApps.remove(wtoken);
-            wtoken.waitingToShow = wtoken.waitingToHide = false;
+            wtoken.waitingToShow = false;
             wtoken.hiddenRequested = !visible;
 
             // If we are preparing an app transition, then delay changing
@@ -4654,12 +4661,6 @@ public class WindowManagerService extends IWindowManager.Stub
                 } else {
                     mClosingApps.add(wtoken);
                     wtoken.mEnteringAnimation = false;
-
-                    // If the token is currently visible (should be the
-                    // common case), then set up to wait for it to be hidden.
-                    if (!wtoken.hidden) {
-                        wtoken.waitingToHide = true;
-                    }
                 }
                 if (mAppTransition.getAppTransition() == AppTransition.TRANSIT_TASK_OPEN_BEHIND) {
                     // We're launchingBehind, add the launching activity to mOpeningApps.
@@ -4829,7 +4830,6 @@ public class WindowManagerService extends IWindowManager.Stub
                     delayed = true;
                 } else if (mAppTransition.isTransitionSet()) {
                     mClosingApps.add(wtoken);
-                    wtoken.waitingToHide = true;
                     delayed = true;
                 }
                 if (DEBUG_APP_TRANSITIONS) Slog.v(
@@ -9275,7 +9275,6 @@ public class WindowManagerService extends IWindowManager.Stub
                 wtoken.inPendingTransaction = false;
                 setTokenVisibilityLocked(wtoken, animLp, false, transit, false, voiceInteraction);
                 wtoken.updateReportedVisibilityLocked();
-                wtoken.waitingToHide = false;
                 // Force the allDrawn flag, because we want to start
                 // this guy's animations regardless of whether it's
                 // gotten drawn.
