@@ -13716,6 +13716,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         onDetachedFromWindow();
         onDetachedFromWindowInternal();
 
+        InputMethodManager imm = InputMethodManager.peekInstance();
+        if (imm != null) {
+            imm.onViewDetachedFromWindow(this);
+        }
+
         ListenerInfo li = mListenerInfo;
         final CopyOnWriteArrayList<OnAttachStateChangeListener> listeners =
                 li != null ? li.mOnAttachStateChangeListeners : null;
