@@ -6163,7 +6163,10 @@ public class WindowManagerService extends IWindowManager.Stub
                         int bottom = wf.bottom - cr.bottom;
                         frame.union(left, top, right, bottom);
                         ws.getStackBounds(stackBounds);
-                        frame.intersect(stackBounds);
+                        if (!frame.intersect(stackBounds)) {
+                            // Set frame empty if there's no intersection.
+                            frame.setEmpty();
+                        }
                     }
 
                     if (ws.mAppToken != null && ws.mAppToken.token == appToken &&
@@ -6209,7 +6212,12 @@ public class WindowManagerService extends IWindowManager.Stub
                 }
 
                 // Constrain frame to the screen size.
-                frame.intersect(0, 0, dw, dh);
+                    if (!frame.intersect(0, 0, dw, dh)) {
+                        frame.setEmpty();
+                    }
+                if (frame.isEmpty()) {
+                    return null;
+                }
 
                 // Tell surface flinger what part of the image to crop. Take the top
                 // right part of the application, and crop the larger dimension to fit.
