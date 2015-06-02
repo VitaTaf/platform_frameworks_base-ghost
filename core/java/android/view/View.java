@@ -1907,6 +1907,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     public @interface ResolvedLayoutDir {}
 
     /**
+     * A flag to indicate that the layout direction of this view has not been defined yet.
+     * @hide
+     */
+    public static final int LAYOUT_DIRECTION_UNDEFINED = LayoutDirection.UNDEFINED;
+
+    /**
      * Horizontal layout direction of this view is from Left to Right.
      * Use with {@link #setLayoutDirection}.
      */
