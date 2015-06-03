@@ -1494,11 +1494,9 @@ public class HorizontalScrollView extends FrameLayout {
             final int scrollRange = Math.max(0,
                     childWidth - (r - l - mPaddingLeft - mPaddingRight));
             if (mSavedState != null) {
-                if (isLayoutRtl() == mSavedState.isLayoutRtl) {
-                    mScrollX = mSavedState.scrollPosition;
-                } else {
-                    mScrollX = scrollRange - mSavedState.scrollPosition;
-                }
+                mScrollX = isLayoutRtl()
+                        ? scrollRange - mSavedState.scrollOffsetFromStart
+                        : mSavedState.scrollOffsetFromStart;
                 mSavedState = null;
             } else {
                 if (isLayoutRtl()) {
@@ -1681,14 +1679,12 @@ public class HorizontalScrollView extends FrameLayout {
         }
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
-        ss.scrollPosition = mScrollX;
-        ss.isLayoutRtl = isLayoutRtl();
+        ss.scrollOffsetFromStart = isLayoutRtl() ? -mScrollX : mScrollX;
         return ss;
     }
 
     static class SavedState extends BaseSavedState {
-        public int scrollPosition;
-        public boolean isLayoutRtl;
+        public int scrollOffsetFromStart;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1696,23 +1692,21 @@ public class HorizontalScrollView extends FrameLayout {
 
         public SavedState(Parcel source) {
             super(source);
-            scrollPosition = source.readInt();
-            isLayoutRtl = (source.readInt() == 0) ? true : false;
+            scrollOffsetFromStart = source.readInt();
         }
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
-            dest.writeInt(scrollPosition);
-            dest.writeInt(isLayoutRtl ? 1 : 0);
+            dest.writeInt(scrollOffsetFromStart);
         }
 
         @Override
         public String toString() {
             return "HorizontalScrollView.SavedState{"
                     + Integer.toHexString(System.identityHashCode(this))
-                    + " scrollPosition=" + scrollPosition
-                    + " isLayoutRtl=" + isLayoutRtl + "}";
+                    + " scrollPosition=" + scrollOffsetFromStart
+                    + "}";
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
