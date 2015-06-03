@@ -16724,13 +16724,16 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see Drawable#setTintMode(PorterDuff.Mode)
      */
     public void setForegroundTintMode(@Nullable PorterDuff.Mode tintMode) {
-        if (mBackgroundTint == null) {
-            mBackgroundTint = new TintInfo();
+        if (mForegroundInfo == null) {
+            mForegroundInfo = new ForegroundInfo();
         }
-        mBackgroundTint.mTintMode = tintMode;
-        mBackgroundTint.mHasTintMode = true;
+        if (mForegroundInfo.mTintInfo == null) {
+            mForegroundInfo.mTintInfo = new TintInfo();
+        }
+        mForegroundInfo.mTintInfo.mTintMode = tintMode;
+        mForegroundInfo.mTintInfo.mHasTintMode = true;
 
-        applyBackgroundTint();
+        applyForegroundTint();
     }
 
     /**
@@ -16740,7 +16743,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @return the blending mode used to apply the tint to the foreground
      *         drawable
      * @attr ref android.R.styleable#View_foregroundTintMode
-     * @see #setBackgroundTintMode(PorterDuff.Mode)
+     * @see #setForegroundTintMode(PorterDuff.Mode)
      */
     @Nullable
     public PorterDuff.Mode getForegroundTintMode() {
