@@ -17,6 +17,7 @@
 package android.widget;
 
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.android.internal.R;
@@ -347,17 +348,24 @@ public class ScrollView extends FrameLayout {
 
         if (getChildCount() > 0) {
             final View child = getChildAt(0);
-            int height = getMeasuredHeight();
+            final int height = getMeasuredHeight();
             if (child.getMeasuredHeight() < height) {
+                final int widthPadding;
+                final int heightPadding;
                 final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                final int targetSdkVersion = getContext().getApplicationInfo().targetSdkVersion;
+                if (targetSdkVersion >= VERSION_CODES.MNC) {
+                    widthPadding = mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin;
+                    heightPadding = mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin;
+                } else {
+                    widthPadding = mPaddingLeft + mPaddingRight;
+                    heightPadding = mPaddingTop + mPaddingBottom;
+                }
 
-                int childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
-                        mPaddingLeft + mPaddingRight, lp.width);
-                height -= mPaddingTop;
-                height -= mPaddingBottom;
-                int childHeightMeasureSpec =
-                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-
+                final int childWidthMeasureSpec = getChildMeasureSpec(
+                        widthMeasureSpec, widthPadding, lp.width);
+                final int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                        height - heightPadding, MeasureSpec.EXACTLY);
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
         }
