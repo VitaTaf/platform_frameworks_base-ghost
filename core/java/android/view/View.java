@@ -734,6 +734,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     private static boolean sUseBrokenMakeMeasureSpec = false;
 
     /**
+     * Always return a size of 0 for MeasureSpec values with a mode of UNSPECIFIED
+     */
+    static boolean sUseZeroUnspecifiedMeasureSpec = false;
+
+    /**
      * Ignore any optimizations using the measure cache.
      */
     private static boolean sIgnoreMeasureCache = false;
@@ -3627,6 +3632,13 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             // Older apps expect onMeasure() to always be called on a layout pass, regardless
             // of whether a layout was requested on that View.
             sIgnoreMeasureCache = targetSdkVersion < KITKAT;
+
+            // In MNC and newer, our widgets can pass a "hint" value in the size
+            // for UNSPECIFIED MeasureSpecs. This lets child views of scrolling containers
+            // know what the expected parent size is going to be, so e.g. list items can size
+            // themselves at 1/3 the size of their container. It breaks older apps though,
+            // specifically apps that use some popular open source libraries.
+            sUseZeroUnspecifiedMeasureSpec = targetSdkVersion < MNC;
 
             sCompatibilityDone = true;
         }
@@ -20068,6 +20080,19 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             } else {
                 return (size & ~MODE_MASK) | (mode & MODE_MASK);
             }
+        }
+
+        /**
+         * Like {@link #makeMeasureSpec(int, int)}, but any spec with a mode of UNSPECIFIED
+         * will automatically get a size of 0. Older apps expect this.
+         *
+         * @hide internal use only for compatibility with system widgets and older apps
+         */
+        public static int makeSafeMeasureSpec(int size, int mode) {
+            if (sUseZeroUnspecifiedMeasureSpec && mode == UNSPECIFIED) {
+                return 0;
+            }
+            return makeMeasureSpec(size, mode);
         }
 
         /**

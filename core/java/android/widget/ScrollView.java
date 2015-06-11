@@ -1253,7 +1253,7 @@ public class ScrollView extends FrameLayout {
         childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec, mPaddingLeft
                 + mPaddingRight, lp.width);
 
-        childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+        childHeightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(
                 MeasureSpec.getSize(parentHeightMeasureSpec), MeasureSpec.UNSPECIFIED);
 
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
@@ -1267,7 +1267,7 @@ public class ScrollView extends FrameLayout {
         final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
                 mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin
                         + widthUsed, lp.width);
-        final int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+        final int childHeightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(
                 MeasureSpec.getSize(parentHeightMeasureSpec), MeasureSpec.UNSPECIFIED);
 
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);

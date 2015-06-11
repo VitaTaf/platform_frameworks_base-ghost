@@ -650,7 +650,7 @@ class FastScroller {
 
         final int adjMaxWidth = maxWidth - marginLeft - marginRight;
         final int widthMeasureSpec = MeasureSpec.makeMeasureSpec(adjMaxWidth, MeasureSpec.AT_MOST);
-        final int heightMeasureSpec = MeasureSpec.makeMeasureSpec(container.height(),
+        final int heightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(container.height(),
                 MeasureSpec.UNSPECIFIED);
         view.measure(widthMeasureSpec, heightMeasureSpec);
 
@@ -690,7 +690,7 @@ class FastScroller {
         final int containerWidth = container.width();
         final int adjMaxWidth = containerWidth - marginLeft - marginRight;
         final int widthMeasureSpec = MeasureSpec.makeMeasureSpec(adjMaxWidth, MeasureSpec.AT_MOST);
-        final int heightMeasureSpec = MeasureSpec.makeMeasureSpec(container.height(),
+        final int heightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(container.height(),
                 MeasureSpec.UNSPECIFIED);
         preview.measure(widthMeasureSpec, heightMeasureSpec);
 
@@ -756,7 +756,7 @@ class FastScroller {
         final Rect container = mContainerRect;
         final int maxWidth = container.width();
         final int widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST);
-        final int heightMeasureSpec = MeasureSpec.makeMeasureSpec(container.height(),
+        final int heightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(container.height(),
                 MeasureSpec.UNSPECIFIED);
         track.measure(widthMeasureSpec, heightMeasureSpec);
 

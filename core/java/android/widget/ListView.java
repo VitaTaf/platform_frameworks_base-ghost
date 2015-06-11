@@ -1203,7 +1203,7 @@ public class ListView extends AbsListView {
         if (lpHeight > 0) {
             childHeightSpec = MeasureSpec.makeMeasureSpec(lpHeight, MeasureSpec.EXACTLY);
         } else {
-            childHeightSpec = MeasureSpec.makeMeasureSpec(heightHint, MeasureSpec.UNSPECIFIED);
+            childHeightSpec = MeasureSpec.makeSafeMeasureSpec(heightHint, MeasureSpec.UNSPECIFIED);
         }
         child.measure(childWidthSpec, childHeightSpec);
     }
@@ -1940,7 +1940,7 @@ public class ListView extends AbsListView {
             if (lpHeight > 0) {
                 childHeightSpec = MeasureSpec.makeMeasureSpec(lpHeight, MeasureSpec.EXACTLY);
             } else {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(getMeasuredHeight(),
+                childHeightSpec = MeasureSpec.makeSafeMeasureSpec(getMeasuredHeight(),
                         MeasureSpec.UNSPECIFIED);
             }
             child.measure(childWidthSpec, childHeightSpec);
@@ -2688,7 +2688,7 @@ public class ListView extends AbsListView {
         if (lpHeight > 0) {
             childHeightSpec = MeasureSpec.makeMeasureSpec(lpHeight, MeasureSpec.EXACTLY);
         } else {
-            childHeightSpec = MeasureSpec.makeMeasureSpec(getMeasuredHeight(),
+            childHeightSpec = MeasureSpec.makeSafeMeasureSpec(getMeasuredHeight(),
                     MeasureSpec.UNSPECIFIED);
         }
         child.measure(childWidthSpec, childHeightSpec);
