@@ -22,7 +22,6 @@ import android.annotation.Nullable;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -143,6 +142,9 @@ public class Toolbar extends ViewGroup {
 
     // Clear me after use.
     private final ArrayList<View> mTempViews = new ArrayList<View>();
+
+    // Used to hold views that will be removed while we have an expanded action view.
+    private final ArrayList<View> mHiddenViews = new ArrayList<>();
 
     private final int[] mTempMargins = new int[2];
 
@@ -431,12 +433,12 @@ public class Toolbar extends ViewGroup {
     public void setLogo(Drawable drawable) {
         if (drawable != null) {
             ensureLogoView();
-            if (mLogoView.getParent() == null) {
-                addSystemView(mLogoView);
-                updateChildVisibilityForExpandedActionView(mLogoView);
+            if (!isChildOrHidden(mLogoView)) {
+                addSystemView(mLogoView, true);
             }
-        } else if (mLogoView != null && mLogoView.getParent() != null) {
+        } else if (mLogoView != null && isChildOrHidden(mLogoView)) {
             removeView(mLogoView);
+            mHiddenViews.remove(mLogoView);
         }
         if (mLogoView != null) {
             mLogoView.setImageDrawable(drawable);
@@ -573,12 +575,12 @@ public class Toolbar extends ViewGroup {
                     mTitleTextView.setTextColor(mTitleTextColor);
                 }
             }
-            if (mTitleTextView.getParent() == null) {
-                addSystemView(mTitleTextView);
-                updateChildVisibilityForExpandedActionView(mTitleTextView);
+            if (!isChildOrHidden(mTitleTextView)) {
+                addSystemView(mTitleTextView, true);
             }
-        } else if (mTitleTextView != null && mTitleTextView.getParent() != null) {
+        } else if (mTitleTextView != null && isChildOrHidden(mTitleTextView)) {
             removeView(mTitleTextView);
+            mHiddenViews.remove(mTitleTextView);
         }
         if (mTitleTextView != null) {
             mTitleTextView.setText(title);
@@ -627,12 +629,12 @@ public class Toolbar extends ViewGroup {
                     mSubtitleTextView.setTextColor(mSubtitleTextColor);
                 }
             }
-            if (mSubtitleTextView.getParent() == null) {
-                addSystemView(mSubtitleTextView);
-                updateChildVisibilityForExpandedActionView(mSubtitleTextView);
+            if (!isChildOrHidden(mSubtitleTextView)) {
+                addSystemView(mSubtitleTextView, true);
             }
-        } else if (mSubtitleTextView != null && mSubtitleTextView.getParent() != null) {
+        } else if (mSubtitleTextView != null && isChildOrHidden(mSubtitleTextView)) {
             removeView(mSubtitleTextView);
+            mHiddenViews.remove(mSubtitleTextView);
         }
         if (mSubtitleTextView != null) {
             mSubtitleTextView.setText(subtitle);
@@ -768,12 +770,12 @@ public class Toolbar extends ViewGroup {
     public void setNavigationIcon(@Nullable Drawable icon) {
         if (icon != null) {
             ensureNavButtonView();
-            if (mNavButtonView.getParent() == null) {
-                addSystemView(mNavButtonView);
-                updateChildVisibilityForExpandedActionView(mNavButtonView);
+            if (!isChildOrHidden(mNavButtonView)) {
+                addSystemView(mNavButtonView, true);
             }
-        } else if (mNavButtonView != null && mNavButtonView.getParent() != null) {
+        } else if (mNavButtonView != null && isChildOrHidden(mNavButtonView)) {
             removeView(mNavButtonView);
+            mHiddenViews.remove(mNavButtonView);
         }
         if (mNavButtonView != null) {
             mNavButtonView.setImageDrawable(icon);
@@ -841,7 +843,7 @@ public class Toolbar extends ViewGroup {
             final LayoutParams lp = generateDefaultLayoutParams();
             lp.gravity = Gravity.END | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mMenuView.setLayoutParams(lp);
-            addSystemView(mMenuView);
+            addSystemView(mMenuView, false);
         }
     }
 
@@ -1016,7 +1018,7 @@ public class Toolbar extends ViewGroup {
         }
     }
 
-    private void addSystemView(View v) {
+    private void addSystemView(View v, boolean allowHide) {
         final ViewGroup.LayoutParams vlp = v.getLayoutParams();
         final LayoutParams lp;
         if (vlp == null) {
@@ -1027,7 +1029,13 @@ public class Toolbar extends ViewGroup {
             lp = (LayoutParams) vlp;
         }
         lp.mViewType = LayoutParams.SYSTEM;
-        addView(v, lp);
+
+        if (allowHide && mExpandedActionView != null) {
+            v.setLayoutParams(lp);
+            mHiddenViews.add(v);
+        } else {
+            addView(v, lp);
+        }
     }
 
     @Override
@@ -1716,22 +1724,30 @@ public class Toolbar extends ViewGroup {
         return mWrapper;
     }
 
-    private void setChildVisibilityForExpandedActionView(boolean expand) {
+    void removeChildrenForExpandedActionView() {
         final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        // Go backwards since we're removing from the list
+        for (int i = childCount - 1; i >= 0; i--) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (lp.mViewType != LayoutParams.EXPANDED && child != mMenuView) {
-                child.setVisibility(expand ? GONE : VISIBLE);
+                removeViewAt(i);
+                mHiddenViews.add(child);
             }
         }
     }
 
-    private void updateChildVisibilityForExpandedActionView(View child) {
-        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        if (lp.mViewType != LayoutParams.EXPANDED && child != mMenuView) {
-            child.setVisibility(mExpandedActionView != null ? GONE : VISIBLE);
+    void addChildrenForExpandedActionView() {
+        final int count = mHiddenViews.size();
+        // Re-add in reverse order since we removed in reverse order
+        for (int i = count - 1; i >= 0; i--) {
+            addView(mHiddenViews.get(i));
         }
+        mHiddenViews.clear();
+    }
+
+    private boolean isChildOrHidden(View child) {
+        return child.getParent() == this || mHiddenViews.contains(child);
     }
 
     /**
@@ -1946,7 +1962,7 @@ public class Toolbar extends ViewGroup {
                 addView(mExpandedActionView);
             }
 
-            setChildVisibilityForExpandedActionView(true);
+            removeChildrenForExpandedActionView();
             requestLayout();
             item.setActionViewExpanded(true);
 
@@ -1969,7 +1985,7 @@ public class Toolbar extends ViewGroup {
             removeView(mCollapseButtonView);
             mExpandedActionView = null;
 
-            setChildVisibilityForExpandedActionView(false);
+            addChildrenForExpandedActionView();
             mCurrentExpandedItem = null;
             requestLayout();
             item.setActionViewExpanded(false);
