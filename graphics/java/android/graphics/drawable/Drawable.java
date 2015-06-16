@@ -1148,6 +1148,7 @@ public abstract class Drawable {
      * document, tries to create a Drawable from that tag. Returns {@code null}
      * if the tag is not a valid drawable.
      */
+    @SuppressWarnings("deprecation")
     public static Drawable createFromXmlInner(Resources r, XmlPullParser parser, AttributeSet attrs,
             Theme theme) throws XmlPullParserException, IOException {
         final Drawable drawable;
@@ -1203,16 +1204,10 @@ public abstract class Drawable {
                 drawable = new InsetDrawable();
                 break;
             case "bitmap":
-                drawable = new BitmapDrawable(r);
-                if (r != null) {
-                    ((BitmapDrawable) drawable).setTargetDensity(r.getDisplayMetrics());
-                }
+                drawable = new BitmapDrawable();
                 break;
             case "nine-patch":
                 drawable = new NinePatchDrawable();
-                if (r != null) {
-                    ((NinePatchDrawable) drawable).setTargetDensity(r.getDisplayMetrics());
-                }
                 break;
             default:
                 throw new XmlPullParserException(parser.getPositionDescription() +
