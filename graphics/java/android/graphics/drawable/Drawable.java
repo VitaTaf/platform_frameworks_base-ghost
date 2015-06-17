@@ -280,7 +280,7 @@ public abstract class Drawable {
      * @return whether this drawable dithers its colors
      * @see #setDither(boolean)
      */
-    public boolean getDither() {
+    public boolean isDither() {
         return false;
     }
 

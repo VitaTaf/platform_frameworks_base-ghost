@@ -1256,12 +1256,12 @@ public class LayerDrawable extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public boolean getDither() {
+    public boolean isDither() {
         final Drawable dr = getFirstNonNullDrawable();
         if (dr != null) {
-            return dr.getDither();
+            return dr.isDither();
         } else {
-            return super.getDither();
+            return super.isDither();
         }
     }
 
