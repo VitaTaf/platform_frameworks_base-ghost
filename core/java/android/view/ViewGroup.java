@@ -3970,22 +3970,36 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         mOnHierarchyChangeListener = listener;
     }
 
-    /**
-     * @hide
-     */
-    protected void onViewAdded(View child) {
+    void dispatchViewAdded(View child) {
+        onViewAdded(child);
         if (mOnHierarchyChangeListener != null) {
             mOnHierarchyChangeListener.onChildViewAdded(this, child);
         }
     }
 
     /**
-     * @hide
+     * Called when a new child is added to this ViewGroup. Overrides should always
+     * call super.onViewAdded.
+     *
+     * @param child the added child view
      */
-    protected void onViewRemoved(View child) {
+    public void onViewAdded(View child) {
+    }
+
+    void dispatchViewRemoved(View child) {
+        onViewRemoved(child);
         if (mOnHierarchyChangeListener != null) {
             mOnHierarchyChangeListener.onChildViewRemoved(this, child);
         }
+    }
+
+    /**
+     * Called when a child view is removed from this ViewGroup. Overrides should always
+     * call super.onViewRemoved.
+     *
+     * @param child the removed child view
+     */
+    public void onViewRemoved(View child) {
     }
 
     private void clearCachedLayoutMode() {
@@ -4114,7 +4128,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             child.resetRtlProperties();
         }
 
-        onViewAdded(child);
+        dispatchViewAdded(child);
 
         if ((child.mViewFlags & DUPLICATE_PARENT_STATE) == DUPLICATE_PARENT_STATE) {
             mGroupFlags |= FLAG_NOTIFY_CHILDREN_ON_DRAWABLE_STATE_CHANGE;
@@ -4376,7 +4390,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             }
         }
 
-        onViewRemoved(view);
+        dispatchViewRemoved(view);
 
         if (view.getVisibility() != View.GONE) {
             notifySubtreeAccessibilityStateChangedIfNeeded();
@@ -4468,7 +4482,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 
             needGlobalAttributesUpdate(false);
 
-            onViewRemoved(view);
+            dispatchViewRemoved(view);
         }
 
         removeFromArray(start, count);
@@ -4551,7 +4565,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                 childHasTransientStateChanged(view, false);
             }
 
-            onViewRemoved(view);
+            dispatchViewRemoved(view);
 
             view.mParent = null;
             children[i] = null;
@@ -4610,7 +4624,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             childHasTransientStateChanged(child, false);
         }
 
-        onViewRemoved(child);
+        dispatchViewRemoved(child);
     }
 
     /**

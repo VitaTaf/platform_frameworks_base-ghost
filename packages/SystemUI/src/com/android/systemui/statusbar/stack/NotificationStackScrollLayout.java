@@ -1542,7 +1542,7 @@ public class NotificationStackScrollLayout extends ViewGroup
     }
 
     @Override
-    protected void onViewRemoved(View child) {
+    public void onViewRemoved(View child) {
         super.onViewRemoved(child);
         mStackScrollAlgorithm.notifyChildrenChanged(this);
         if (mChangePositionInProgress) {
@@ -1632,7 +1632,7 @@ public class NotificationStackScrollLayout extends ViewGroup
     }
 
     @Override
-    protected void onViewAdded(View child) {
+    public void onViewAdded(View child) {
         super.onViewAdded(child);
         mStackScrollAlgorithm.notifyChildrenChanged(this);
         ((ExpandableView) child).setOnHeightChangedListener(this);
