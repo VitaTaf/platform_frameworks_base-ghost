@@ -1385,11 +1385,7 @@ public class AudioService extends IAudioService.Stub {
 
     // UI update and Broadcast Intent
     private void sendVolumeUpdate(int streamType, int oldIndex, int index, int flags) {
-        if (!isPlatformVoice() && (streamType == AudioSystem.STREAM_RING)) {
-            streamType = AudioSystem.STREAM_NOTIFICATION;
-        } else {
-            streamType = mStreamVolumeAlias[streamType];
-        }
+        streamType = mStreamVolumeAlias[streamType];
 
         if (streamType == AudioSystem.STREAM_MUSIC) {
             flags = updateFlagsForSystemAudio(flags);
