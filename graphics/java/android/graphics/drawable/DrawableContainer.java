@@ -735,7 +735,7 @@ public class DrawableContainer extends Drawable implements Drawable.Callback {
                 if (origDf != null) {
                     mDrawableFutures = origDf.clone();
                 } else {
-                    mDrawableFutures = new SparseArray<ConstantStateFuture>(mNumChildren);
+                    mDrawableFutures = new SparseArray<>(mNumChildren);
                 }
 
                 // Create futures for drawables with constant states. If a
@@ -828,6 +828,9 @@ public class DrawableContainer extends Drawable implements Drawable.Callback {
                     final Drawable prepared = mDrawableFutures.valueAt(keyIndex).get(this);
                     mDrawables[index] = prepared;
                     mDrawableFutures.removeAt(keyIndex);
+                    if (mDrawableFutures.size() == 0) {
+                        mDrawableFutures = null;
+                    }
                     return prepared;
                 }
             }
