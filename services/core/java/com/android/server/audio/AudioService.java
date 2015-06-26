@@ -3530,6 +3530,8 @@ public class AudioService extends IAudioService.Stub {
                 index = (index + 5) / 10;
                 mVolumeChanged.putExtra(AudioManager.EXTRA_VOLUME_STREAM_VALUE, index);
                 mVolumeChanged.putExtra(AudioManager.EXTRA_PREV_VOLUME_STREAM_VALUE, oldIndex);
+                mVolumeChanged.putExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE_ALIAS,
+                        mStreamVolumeAlias[mStreamType]);
                 sendBroadcastToAll(mVolumeChanged);
             }
             return changed;
