@@ -11507,6 +11507,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             mRenderNode.offsetTopAndBottom(offset);
             if (isHardwareAccelerated()) {
                 invalidateViewProperty(false, false);
+                invalidateParentIfNeededAndWasQuickRejected();
             } else {
                 if (!matrixIsIdentity) {
                     invalidateViewProperty(false, true);
@@ -11554,6 +11555,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             mRenderNode.offsetLeftAndRight(offset);
             if (isHardwareAccelerated()) {
                 invalidateViewProperty(false, false);
+                invalidateParentIfNeededAndWasQuickRejected();
             } else {
                 if (!matrixIsIdentity) {
                     invalidateViewProperty(false, true);
