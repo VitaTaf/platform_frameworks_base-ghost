@@ -730,7 +730,8 @@ public class RelativeLayout extends ViewGroup {
         // Negative values in a mySize value in RelativeLayout
         // measurement is code for, "we got an unspecified mode in the
         // RelativeLayout's measure spec."
-        if (mySize < 0 && !mAllowBrokenMeasureSpecs) {
+        final boolean isUnspecified = mySize < 0;
+        if (isUnspecified && !mAllowBrokenMeasureSpecs) {
             if (childStart != VALUE_NOT_SET && childEnd != VALUE_NOT_SET) {
                 // Constraints fixed both edges, so child has an exact size.
                 childSpecSize = Math.max(0, childEnd - childStart);
@@ -766,7 +767,7 @@ public class RelativeLayout extends ViewGroup {
 
         if (childStart != VALUE_NOT_SET && childEnd != VALUE_NOT_SET) {
             // Constraints fixed both edges, so child must be an exact size.
-            childSpecMode = MeasureSpec.EXACTLY;
+            childSpecMode = isUnspecified ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
             childSpecSize = Math.max(0, maxAvailable);
         } else {
             if (childSize >= 0) {
@@ -783,7 +784,7 @@ public class RelativeLayout extends ViewGroup {
             } else if (childSize == LayoutParams.MATCH_PARENT) {
                 // Child wanted to be as big as possible. Give all available
                 // space.
-                childSpecMode = MeasureSpec.EXACTLY;
+                childSpecMode = isUnspecified ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
                 childSpecSize = Math.max(0, maxAvailable);
             } else if (childSize == LayoutParams.WRAP_CONTENT) {
                 // Child wants to wrap content. Use AT_MOST to communicate
