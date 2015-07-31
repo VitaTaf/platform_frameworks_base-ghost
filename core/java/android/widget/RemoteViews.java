@@ -2640,6 +2640,10 @@ public class RemoteViews implements Parcelable, Filter {
             public Resources.Theme getTheme() {
                 return contextForResources.getTheme();
             }
+            @Override
+            public String getPackageName() {
+                return contextForResources.getPackageName();
+            }
         };
 
         LayoutInflater inflater = (LayoutInflater)
