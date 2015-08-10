@@ -380,8 +380,6 @@ public class TaskStack {
         }
 
         close();
-
-        mDisplayContent = null;
     }
 
     void resetAnimationBackgroundAnimator() {
@@ -513,6 +511,7 @@ public class TaskStack {
             mDimLayer.destroySurface();
             mDimLayer = null;
         }
+        mDisplayContent = null;
     }
 
     public void dump(String prefix, PrintWriter pw) {
