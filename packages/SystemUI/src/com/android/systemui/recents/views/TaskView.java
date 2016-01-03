@@ -651,10 +651,6 @@ public class TaskView extends FrameLayout implements Task.TaskCallbacks,
         }
     }
 
-    public void disableLayersForOneFrame() {
-        mHeaderView.disableLayersForOneFrame();
-    }
-
     /**** TaskCallbacks Implementation ****/
 
     /** Binds this task view to the task */
