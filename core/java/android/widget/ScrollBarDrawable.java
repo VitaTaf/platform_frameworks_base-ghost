@@ -44,7 +44,6 @@ public class ScrollBarDrawable extends Drawable {
     private final Rect mTempBounds = new Rect();
     private boolean mAlwaysDrawHorizontalTrack;
     private boolean mAlwaysDrawVerticalTrack;
-    private boolean mMutated;
 
     public ScrollBarDrawable() {
     }
@@ -192,9 +191,6 @@ public class ScrollBarDrawable extends Drawable {
 
     public void setVerticalThumbDrawable(Drawable thumb) {
         if (thumb != null) {
-            if (mMutated) {
-                thumb.mutate();
-            }
             thumb.setState(STATE_ENABLED);
             mVerticalThumb = thumb;
         }
@@ -202,9 +198,6 @@ public class ScrollBarDrawable extends Drawable {
 
     public void setVerticalTrackDrawable(Drawable track) {
         if (track != null) {
-            if (mMutated) {
-                track.mutate();
-            }
             track.setState(STATE_ENABLED);
         }
         mVerticalTrack = track;
@@ -212,9 +205,6 @@ public class ScrollBarDrawable extends Drawable {
 
     public void setHorizontalThumbDrawable(Drawable thumb) {
         if (thumb != null) {
-            if (mMutated) {
-                thumb.mutate();
-            }
             thumb.setState(STATE_ENABLED);
             mHorizontalThumb = thumb;
         }
@@ -222,9 +212,6 @@ public class ScrollBarDrawable extends Drawable {
 
     public void setHorizontalTrackDrawable(Drawable track) {
         if (track != null) {
-            if (mMutated) {
-                track.mutate();
-            }
             track.setState(STATE_ENABLED);
         }
         mHorizontalTrack = track;
@@ -238,26 +225,6 @@ public class ScrollBarDrawable extends Drawable {
             return mHorizontalTrack != null ? mHorizontalTrack.getIntrinsicHeight() :
                     mHorizontalThumb != null ? mHorizontalThumb.getIntrinsicHeight() : 0;
         }
-    }
-
-    @Override
-    public ScrollBarDrawable mutate() {
-        if (!mMutated && super.mutate() == this) {
-            if (mVerticalTrack != null) {
-                mVerticalTrack.mutate();
-            }
-            if (mVerticalThumb != null) {
-                mVerticalThumb.mutate();
-            }
-            if (mHorizontalTrack != null) {
-                mHorizontalTrack.mutate();
-            }
-            if (mHorizontalThumb != null) {
-                mHorizontalThumb.mutate();
-            }
-            mMutated = true;
-        }
-        return this;
     }
 
     @Override
