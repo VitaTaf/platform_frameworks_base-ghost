@@ -608,6 +608,7 @@ public class RippleDrawable extends LayerDrawable {
         onHotspotBoundsChanged();
     }
 
+    /** @hide */
     @Override
     public void getHotspotBounds(Rect outRect) {
         outRect.set(mHotspotBounds);

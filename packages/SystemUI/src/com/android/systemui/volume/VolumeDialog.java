@@ -449,7 +449,6 @@ public class VolumeDialog {
         mShowing = true;
         mMotion.startShow();
         Events.writeEvent(Events.EVENT_SHOW_DIALOG, reason, mKeyguard.isKeyguardLocked());
->>>>>>> 22def3d... Volume Motion: Initial show and expand transition.
         mController.notifyVisible(true);
     }
 
@@ -478,19 +477,13 @@ public class VolumeDialog {
         mHandler.removeMessages(H.SHOW);
         if (!mShowing) return;
         mShowing = false;
-<<<<<<< HEAD
-        mDialog.dismiss();
-        Events.writeEvent(Events.EVENT_DISMISS_DIALOG, reason);
-        setExpandedH(false);
-=======
         mMotion.startDismiss(new Runnable() {
             @Override
             public void run() {
                 setExpandedH(false);
             }
         });
-        Events.writeEvent(mContext, Events.EVENT_DISMISS_DIALOG, reason);
->>>>>>> 22def3d... Volume Motion: Initial show and expand transition.
+        Events.writeEvent(Events.EVENT_DISMISS_DIALOG, reason);
         mController.notifyVisible(false);
         synchronized (mSafetyWarningLock) {
             if (mSafetyWarning != null) {
