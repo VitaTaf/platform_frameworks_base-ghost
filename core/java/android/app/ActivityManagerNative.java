@@ -5266,19 +5266,24 @@ class ActivityManagerProxy implements IActivityManager
         reply.recycle();
     }
 
-        case CREATE_STACK_ON_DISPLAY: {
-            data.enforceInterface(IActivityManager.descriptor);
-            int displayId = data.readInt();
-            IActivityContainer activityContainer = createStackOnDisplay(displayId);
-            reply.writeNoException();
-            if (activityContainer != null) {
-                reply.writeInt(1);
-                reply.writeStrongBinder(activityContainer.asBinder());
-            } else {
-                reply.writeInt(0);
-            }
-            return true;
+    public IActivityContainer createStackOnDisplay(int displayId) throws RemoteException {
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        data.writeInterfaceToken(IActivityManager.descriptor);
+        data.writeInt(displayId);
+        mRemote.transact(CREATE_STACK_ON_DISPLAY, data, reply, 0);
+        reply.readException();
+        final int result = reply.readInt();
+        final IActivityContainer res;
+        if (result == 1) {
+            res = IActivityContainer.Stub.asInterface(reply.readStrongBinder());
+        } else {
+            res = null;
         }
+        data.recycle();
+        reply.recycle();
+        return res;
+    }
 
     @Override
     public int getActivityDisplayId(IBinder activityToken) throws RemoteException {
