@@ -9980,12 +9980,7 @@ public class WindowManagerService extends IWindowManager.Stub
                     mStackIdToStack.valueAt(stackNdx).mExitingAppTokens;
             for (i = exitingAppTokens.size() - 1; i >= 0; i--) {
                 AppWindowToken token = exitingAppTokens.get(i);
-<<<<<<< HEAD
-                if (!token.hasVisible && !mClosingApps.contains(token) &&
-                        (!token.mDeferRemoval || token.allAppWindows.isEmpty())) {
-=======
                 if (!token.hasVisible && !mClosingApps.contains(token) && !token.mIsExiting) {
->>>>>>> 799bc1d... Refactor moveStackWindowsLocked()
                     // Make sure there is no animation running on this token,
                     // so any windows associated with it will be removed as
                     // soon as their animations are complete
