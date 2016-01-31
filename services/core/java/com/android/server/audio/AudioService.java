@@ -104,6 +104,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 
 import com.android.internal.util.XmlUtils;
+import com.android.server.EventLogTags;
 import com.android.server.LocalServices;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -1779,7 +1780,7 @@ public class AudioService extends IAudioService.Stub {
                             int device = vss.mIndexMap.keyAt(i);
                             int value = vss.mIndexMap.valueAt(i);
                             if (value == 0) {
-                                vss.setIndex(10, device, TAG);
+                                vss.setIndex(10, device);
                             }
                         }
                     }
