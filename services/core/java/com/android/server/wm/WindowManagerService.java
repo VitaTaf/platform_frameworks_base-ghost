@@ -588,18 +588,18 @@ public class WindowManagerService extends IWindowManager.Stub
     static final long WALLPAPER_TIMEOUT_RECOVERY = 10000;
     boolean mAnimateWallpaperWithTarget;
 
-    // Set to the wallpaper window we would like to hide once the transition animations are done.
-    // This is useful in cases where we don't want the wallpaper to be hidden when the close app
-    // is a wallpaper target and is done animating out, but the opening app isn't a wallpaper
-    // target and isn't done animating in.
-    WindowState mDeferredHideWallpaper = null;
-
     // We give a wallpaper up to 1000ms to finish drawing before playing app transitions.
     static final long WALLPAPER_DRAW_PENDING_TIMEOUT_DURATION = 1000;
     static final int WALLPAPER_DRAW_NORMAL = 0;
     static final int WALLPAPER_DRAW_PENDING = 1;
     static final int WALLPAPER_DRAW_TIMEOUT = 2;
     int mWallpaperDrawState = WALLPAPER_DRAW_NORMAL;
+
+    // Set to the wallpaper window we would like to hide once the transition animations are done.
+    // This is useful in cases where we don't want the wallpaper to be hidden when the close app
+    // is a wallpaper target and is done animating out, but the opening app isn't a wallpaper
+    // target and isn't done animating in.
+    WindowState mDeferredHideWallpaper = null;
 
     AppWindowToken mFocusedApp = null;
 
