@@ -436,8 +436,6 @@ public class WindowManagerService extends IWindowManager.Stub
     boolean mShowingBootMessages = false;
     boolean mBootAnimationStopped = false;
 
-    /** Dump of the windows and app tokens at the time of the last ANR. Cleared after
-     * LAST_ANR_LIFETIME_DURATION_MSECS */
     String mLastANRState;
 
     /** All DisplayContents in the world, kept here */
@@ -965,7 +963,7 @@ public class WindowManagerService extends IWindowManager.Stub
     private void placeWindowAfter(WindowState pos, WindowState window) {
         final WindowList windows = pos.getWindowList();
         final int i = windows.indexOf(pos);
-        if (DEBUG_FOCUS || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(
+        if (true || DEBUG_FOCUS || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(
             TAG, "Adding window " + window + " at "
             + (i+1) + " of " + windows.size() + " (after " + pos + ")");
         windows.add(i+1, window);
@@ -975,7 +973,7 @@ public class WindowManagerService extends IWindowManager.Stub
     private void placeWindowBefore(WindowState pos, WindowState window) {
         final WindowList windows = pos.getWindowList();
         int i = windows.indexOf(pos);
-        if (DEBUG_FOCUS || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(
+        if (true || DEBUG_FOCUS || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(
             TAG, "Adding window " + window + " at "
             + i + " of " + windows.size() + " (before " + pos + ")");
         if (i < 0) {
@@ -1073,7 +1071,7 @@ public class WindowManagerService extends IWindowManager.Stub
                     //apptoken note that the window could be a floating window
                     //that was created later or a window at the top of the list of
                     //windows associated with this token.
-                    if (DEBUG_FOCUS_LIGHT || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(TAG,
+                    if (true || DEBUG_FOCUS_LIGHT || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(TAG,
                             "not Base app: Adding window " + win + " at " + (newIdx + 1) + " of " +
                             N);
                     windows.add(newIdx + 1, win);
@@ -1195,7 +1193,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 break;
             }
         }
-        if (DEBUG_FOCUS_LIGHT || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(TAG,
+        if (true || DEBUG_FOCUS_LIGHT || DEBUG_WINDOW_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(TAG,
                 "Based on layer: Adding window " + win + " at " + (i + 1) + " of " + N);
         windows.add(i + 1, win);
         mWindowsChanged = true;
@@ -3654,7 +3652,7 @@ public class WindowManagerService extends IWindowManager.Stub
             atoken.layoutConfigChanges = (configChanges &
                     (ActivityInfo.CONFIG_SCREEN_SIZE | ActivityInfo.CONFIG_ORIENTATION)) != 0;
             atoken.mLaunchTaskBehind = launchTaskBehind;
-            if (DEBUG_TOKEN_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(TAG, "addAppToken: " + atoken
+            if (true || DEBUG_TOKEN_MOVEMENT || DEBUG_ADD_REMOVE) Slog.v(TAG, "addAppToken: " + atoken
                     + " to stack=" + stackId + " task=" + taskId + " at " + addPos);
 
             Task task = mTaskIdToTask.get(taskId);
