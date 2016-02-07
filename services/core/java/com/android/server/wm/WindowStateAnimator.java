@@ -1224,6 +1224,10 @@ class WindowStateAnimator {
             mDtDx = 0;
             mDsDy = 0;
             mDtDy = mWin.mGlobalScale;
+            if (appTransformation == null) {
+                mHasClipRect = false;
+                mClipRect.setEmpty();
+            }
         }
     }
 
