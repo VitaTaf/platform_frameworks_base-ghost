@@ -385,7 +385,7 @@ public class ZenModePanel extends LinearLayout {
             setExpanded(isShown());
             mSessionZen = zen;
         }
-        mZenButtons.setSelectedValue(zen);
+        mZenButtons.setSelectedValue(zen, false /* fromClick */);
         updateWidgets();
         handleUpdateConditions();
         if (mExpanded) {
@@ -957,7 +957,7 @@ public class ZenModePanel extends LinearLayout {
 
     private final SegmentedButtons.Callback mZenButtonsCallback = new SegmentedButtons.Callback() {
         @Override
-        public void onSelected(final Object value) {
+        public void onSelected(final Object value, boolean fromClick) {
             if (value != null && mZenButtons.isShown() && isAttachedToWindow()) {
                 final int zen = (Integer) value;
                 if (DEBUG) Log.d(mTag, "mZenButtonsCallback selected=" + zen);

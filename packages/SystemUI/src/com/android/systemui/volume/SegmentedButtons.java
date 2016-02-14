@@ -55,7 +55,7 @@ public class SegmentedButtons extends LinearLayout {
         return mSelectedValue;
     }
 
-    public void setSelectedValue(Object value) {
+    public void setSelectedValue(Object value, boolean fromClick) {
         if (Objects.equals(value, mSelectedValue)) return;
         mSelectedValue = value;
         for (int i = 0; i < getChildCount(); i++) {
@@ -65,7 +65,7 @@ public class SegmentedButtons extends LinearLayout {
             c.setSelected(selected);
             c.setTypeface(selected ? MEDIUM : REGULAR);
         }
-        fireOnSelected();
+        fireOnSelected(fromClick);
     }
 
     public void addButton(int labelResId, int contentDescriptionResId, Object value) {
@@ -97,9 +97,9 @@ public class SegmentedButtons extends LinearLayout {
         }
     }
 
-    private void fireOnSelected() {
+    private void fireOnSelected(boolean fromClick) {
         if (mCallback != null) {
-            mCallback.onSelected(mSelectedValue);
+            mCallback.onSelected(mSelectedValue, fromClick);
         }
     }
 
@@ -112,11 +112,11 @@ public class SegmentedButtons extends LinearLayout {
     private final View.OnClickListener mClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            setSelectedValue(v.getTag());
+            setSelectedValue(v.getTag(), true /* fromClick */);
         }
     };
 
     public interface Callback extends Interaction.Callback {
-        void onSelected(Object value);
+        void onSelected(Object value, boolean fromClick);
     }
 }
