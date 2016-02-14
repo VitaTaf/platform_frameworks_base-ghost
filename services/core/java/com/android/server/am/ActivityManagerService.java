@@ -58,7 +58,6 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseIntArray;
 
-import android.view.Display;
 import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IAppOpsService;
@@ -8186,14 +8185,14 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
     }
 
-    @Override
-    public int getActivityDisplayId(IBinder activityToken) throws RemoteException {
+    public IActivityContainer getEnclosingActivityContainer(IBinder activityToken)
+            throws RemoteException {
         synchronized (this) {
             ActivityStack stack = ActivityRecord.getStackLocked(activityToken);
-            if (stack != null && stack.mActivityContainer.isAttachedLocked()) {
-                return stack.mActivityContainer.getDisplayId();
+            if (stack != null) {
+                return stack.mActivityContainer;
             }
-            return Display.DEFAULT_DISPLAY;
+            return null;
         }
     }
 
