@@ -13196,7 +13196,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *
      * @see #onDetachedFromWindow()
      */
-    @CallSuper
     protected void onAttachedToWindow() {
         if ((mPrivateFlags & PFLAG_REQUEST_TRANSPARENT_REGIONS) != 0) {
             mParent.requestTransparentRegion(this);
@@ -13522,7 +13521,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      *
      * @see #onAttachedToWindow()
      */
-    @CallSuper
     protected void onDetachedFromWindow() {
     }
 
@@ -13856,7 +13854,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see #dispatchSaveInstanceState(android.util.SparseArray)
      * @see #setSaveEnabled(boolean)
      */
-    @CallSuper
     protected Parcelable onSaveInstanceState() {
         mPrivateFlags |= PFLAG_SAVE_STATE_CALLED;
         return BaseSavedState.EMPTY_STATE;
@@ -13915,7 +13912,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see #restoreHierarchyState(android.util.SparseArray)
      * @see #dispatchRestoreInstanceState(android.util.SparseArray)
      */
-    @CallSuper
     protected void onRestoreInstanceState(Parcelable state) {
         mPrivateFlags |= PFLAG_SAVE_STATE_CALLED;
         if (state != BaseSavedState.EMPTY_STATE && state != null) {
@@ -18278,7 +18274,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see #setAnimation(android.view.animation.Animation)
      * @see #getAnimation()
      */
-    @CallSuper
     protected void onAnimationStart() {
         mPrivateFlags |= PFLAG_ANIMATION_STARTED;
     }
@@ -18291,7 +18286,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @see #setAnimation(android.view.animation.Animation)
      * @see #getAnimation()
      */
-    @CallSuper
     protected void onAnimationEnd() {
         mPrivateFlags &= ~PFLAG_ANIMATION_STARTED;
     }
