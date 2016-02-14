@@ -15182,7 +15182,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                 if (layer != null && layer.isValid()) {
                     int restoreAlpha = mLayerPaint.getAlpha();
                     mLayerPaint.setAlpha((int) (alpha * 255));
-                    ((GLES20Canvas) canvas).drawHardwareLayer(layer, 0, 0, mLayerPaint);
+                    ((DisplayListCanvas) canvas).drawHardwareLayer(layer, 0, 0, mLayerPaint);
                     mLayerPaint.setAlpha(restoreAlpha);
                     layerRendered = true;
                 } else {
