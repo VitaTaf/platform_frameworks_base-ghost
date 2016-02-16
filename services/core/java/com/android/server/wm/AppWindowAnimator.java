@@ -91,8 +91,6 @@ public class AppWindowAnimator {
 
     private boolean mSkipFirstFrame = false;
 
-    private boolean mSkipFirstFrame = false;
-
     static final Animation sDummyAnimation = new DummyAnimation();
 
     public AppWindowAnimator(final AppWindowToken atoken) {
