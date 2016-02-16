@@ -40,6 +40,7 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Debug;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Slog;
 import android.view.Display;
 import android.view.DisplayInfo;
