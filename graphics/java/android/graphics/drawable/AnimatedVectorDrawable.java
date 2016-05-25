@@ -19,7 +19,6 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.animation.Animator.AnimatorListener;
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -128,26 +127,14 @@ import java.util.List;
  * @attr ref android.R.styleable#AnimatedVectorDrawableTarget_animation
  */
 public class AnimatedVectorDrawable extends Drawable implements Animatable {
-    private static final String LOGTAG = "AnimatedVectorDrawable";
+    private static final String LOGTAG = AnimatedVectorDrawable.class.getSimpleName();
 
     private static final String ANIMATED_VECTOR = "animated-vector";
     private static final String TARGET = "target";
 
     private static final boolean DBG_ANIMATION_VECTOR_DRAWABLE = false;
 
-    /** Local, mutable animator set. */
-    private final AnimatorSet mAnimatorSet = new AnimatorSet();
-
-    /**
-     * The resources against which this drawable was created. Used to attempt
-     * to inflate animators if applyTheme() doesn't get called.
-     */
-    private Resources mRes;
-
     private AnimatedVectorDrawableState mAnimatedVectorState;
-
-    /** Whether the animator set has been prepared. */
-    private boolean mHasAnimatorSet;
 
     private boolean mMutated;
 
@@ -157,7 +144,6 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
 
     private AnimatedVectorDrawable(AnimatedVectorDrawableState state, Resources res) {
         mAnimatedVectorState = new AnimatedVectorDrawableState(state, mCallback, res);
-        mRes = res;
     }
 
     @Override
@@ -175,9 +161,7 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
      */
     public void clearMutated() {
         super.clearMutated();
-        if (mAnimatedVectorState.mVectorDrawable != null) {
-            mAnimatedVectorState.mVectorDrawable.clearMutated();
-        }
+        mAnimatedVectorState.mVectorDrawable.clearMutated();
         mMutated = false;
     }
 
@@ -289,7 +273,6 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
     @Override
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)
             throws XmlPullParserException, IOException {
-        final AnimatedVectorDrawableState state = mAnimatedVectorState;
 
         int eventType = parser.getEventType();
         float pathErrorScale = 1;
@@ -307,10 +290,10 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
                         vectorDrawable.setAllowCaching(false);
                         vectorDrawable.setCallback(mCallback);
                         pathErrorScale = vectorDrawable.getPixelSize();
-                        if (state.mVectorDrawable != null) {
-                            state.mVectorDrawable.setCallback(null);
+                        if (mAnimatedVectorState.mVectorDrawable != null) {
+                            mAnimatedVectorState.mVectorDrawable.setCallback(null);
                         }
-                        state.mVectorDrawable = vectorDrawable;
+                        mAnimatedVectorState.mVectorDrawable = vectorDrawable;
                     }
                     a.recycle();
                 } else if (TARGET.equals(tagName)) {
@@ -318,21 +301,13 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
                             R.styleable.AnimatedVectorDrawableTarget);
                     final String target = a.getString(
                             R.styleable.AnimatedVectorDrawableTarget_name);
-                    final int animResId = a.getResourceId(
-                            R.styleable.AnimatedVectorDrawableTarget_animation, 0);
-                    if (animResId != 0) {
-                        if (theme != null) {
-                            final Animator objectAnimator = AnimatorInflater.loadAnimator(
-                                    res, theme, animResId, pathErrorScale);
-                            state.addTargetAnimator(target, objectAnimator);
-                        } else {
-                            // The animation may be theme-dependent. As a
-                            // workaround until Animator has full support for
-                            // applyTheme(), postpone loading the animator
-                            // until we have a theme in applyTheme().
-                            state.addPendingAnimator(animResId, pathErrorScale, target);
 
-                        }
+                    int id = a.getResourceId(
+                            R.styleable.AnimatedVectorDrawableTarget_animation, 0);
+                    if (id != 0) {
+                        Animator objectAnimator = AnimatorInflater.loadAnimator(res, theme, id,
+                                pathErrorScale);
+                        setupAnimatorsForTarget(target, objectAnimator);
                     }
                     a.recycle();
                 }
@@ -340,10 +315,15 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
 
             eventType = parser.next();
         }
+        setupAnimatorSet();
+    }
 
-        // If we don't have any pending animations, we don't need to hold a
-        // reference to the resources.
-        mRes = state.mPendingAnims == null ? null : res;
+    private void setupAnimatorSet() {
+        if (mAnimatedVectorState.mTempAnimators != null) {
+            mAnimatedVectorState.mAnimatorSet.playTogether(mAnimatedVectorState.mTempAnimators);
+            mAnimatedVectorState.mTempAnimators.clear();
+            mAnimatedVectorState.mTempAnimators = null;
+        }
     }
 
     @Override
@@ -360,16 +340,6 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
         if (vectorDrawable != null && vectorDrawable.canApplyTheme()) {
             vectorDrawable.applyTheme(t);
         }
-
-        if (t != null) {
-            mAnimatedVectorState.inflatePendingAnimators(t.getResources(), t);
-        }
-
-        // If we don't have any pending animations, we don't need to hold a
-        // reference to the resources.
-        if (mAnimatedVectorState.mPendingAnims == null) {
-            mRes = null;
-        }
     }
 
     /**
@@ -379,7 +349,7 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
      * @param listener the listener to be added to the current set of listeners for this animation.
      */
     public void addListener(AnimatorListener listener) {
-        mAnimatorSet.addListener(listener);
+        mAnimatedVectorState.mAnimatorSet.addListener(listener);
     }
 
     /**
@@ -389,7 +359,7 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
      *                 animation.
      */
     public void removeListener(AnimatorListener listener) {
-        mAnimatorSet.removeListener(listener);
+        mAnimatedVectorState.mAnimatorSet.removeListener(listener);
     }
 
     /**
@@ -399,27 +369,23 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
      * @return List<AnimatorListener> The set of listeners.
      */
     public List<AnimatorListener> getListeners() {
-        return mAnimatorSet.getListeners();
+        return mAnimatedVectorState.mAnimatorSet.getListeners();
     }
 
     private static class AnimatedVectorDrawableState extends ConstantState {
         int mChangingConfigurations;
         VectorDrawable mVectorDrawable;
-
-        /** Animators that require a theme before inflation. */
-        ArrayList<PendingAnimator> mPendingAnims;
-
-        /** Fully inflated animators awaiting cloning into an AnimatorSet. */
-        ArrayList<Animator> mAnimators;
-
-        /** Map of animators to their target object names */
+        // Always have a valid animatorSet to handle all the listeners call.
+        AnimatorSet mAnimatorSet = new AnimatorSet();
+        // When parsing the XML, we build individual animator and store in this array. At the end,
+        // we add this array into the mAnimatorSet.
+        private ArrayList<Animator> mTempAnimators;
         ArrayMap<Animator, String> mTargetNameMap;
 
         public AnimatedVectorDrawableState(AnimatedVectorDrawableState copy,
                 Callback owner, Resources res) {
             if (copy != null) {
                 mChangingConfigurations = copy.mChangingConfigurations;
-
                 if (copy.mVectorDrawable != null) {
                     final ConstantState cs = copy.mVectorDrawable.getConstantState();
                     if (res != null) {
@@ -433,17 +399,24 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
                     mVectorDrawable.setBounds(copy.mVectorDrawable.getBounds());
                     mVectorDrawable.setAllowCaching(false);
                 }
+                if (copy.mAnimatorSet != null) {
+                    final int numAnimators = copy.mTargetNameMap.size();
+                    // Deep copy a animator set, and then setup the target map again.
+                    mAnimatorSet = copy.mAnimatorSet.clone();
+                    mTargetNameMap = new ArrayMap<Animator, String>(numAnimators);
+                    // Since the new AnimatorSet is cloned from the old one, the order must be the
+                    // same inside the array.
+                    ArrayList<Animator> oldAnim = copy.mAnimatorSet.getChildAnimations();
+                    ArrayList<Animator> newAnim = mAnimatorSet.getChildAnimations();
 
-                if (copy.mAnimators != null) {
-                    mAnimators = new ArrayList<>(copy.mAnimators);
-                }
+                    for (int i = 0; i < numAnimators; ++i) {
+                        // Target name must be the same for new and old
+                        String targetName = copy.mTargetNameMap.get(oldAnim.get(i));
 
-                if (copy.mTargetNameMap != null) {
-                    mTargetNameMap = new ArrayMap<>(copy.mTargetNameMap);
-                }
-
-                if (copy.mPendingAnims != null) {
-                    mPendingAnims = new ArrayList<>(copy.mPendingAnims);
+                        Object newTargetObject = mVectorDrawable.getTargetByName(targetName);
+                        newAnim.get(i).setTarget(newTargetObject);
+                        mTargetNameMap.put(newAnim.get(i), targetName);
+                    }
                 }
             } else {
                 mVectorDrawable = new VectorDrawable();
@@ -453,7 +426,7 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
         @Override
         public boolean canApplyTheme() {
             return (mVectorDrawable != null && mVectorDrawable.canApplyTheme())
-                    || mPendingAnims != null || super.canApplyTheme();
+                    || super.canApplyTheme();
         }
 
         @Override
@@ -470,157 +443,44 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
         public int getChangingConfigurations() {
             return mChangingConfigurations;
         }
+    }
 
-        public void addPendingAnimator(int resId, float pathErrorScale, String target) {
-            if (mPendingAnims == null) {
-                mPendingAnims = new ArrayList<>(1);
-            }
-            mPendingAnims.add(new PendingAnimator(resId, pathErrorScale, target));
+    private void setupAnimatorsForTarget(String name, Animator animator) {
+        Object target = mAnimatedVectorState.mVectorDrawable.getTargetByName(name);
+        animator.setTarget(target);
+        if (mAnimatedVectorState.mTempAnimators == null) {
+            mAnimatedVectorState.mTempAnimators = new ArrayList<Animator>();
+            mAnimatedVectorState.mTargetNameMap = new ArrayMap<Animator, String>();
         }
-
-        public void addTargetAnimator(String targetName, Animator animator) {
-            if (mAnimators == null) {
-                mAnimators = new ArrayList<>(1);
-                mTargetNameMap = new ArrayMap<>(1);
-            }
-            mAnimators.add(animator);
-            mTargetNameMap.put(animator, targetName);
-
-            if (DBG_ANIMATION_VECTOR_DRAWABLE) {
-                Log.v(LOGTAG, "add animator  for target " + targetName + " " + animator);
-            }
-        }
-
-        /**
-         * Prepares a local set of mutable animators based on the constant
-         * state.
-         * <p>
-         * If there are any pending uninflated animators, attempts to inflate
-         * them immediately against the provided resources object.
-         *
-         * @param animatorSet the animator set to which the animators should
-         *                    be added
-         * @param res the resources against which to inflate any pending
-         *            animators, or {@code null} if not available
-         */
-        public void prepareLocalAnimators(@NonNull AnimatorSet animatorSet,
-                @Nullable Resources res) {
-            // Check for uninflated animators. We can remove this after we add
-            // support for Animator.applyTheme(). See comments in inflate().
-            if (mPendingAnims != null) {
-                // Attempt to load animators without applying a theme.
-                if (res != null) {
-                    inflatePendingAnimators(res, null);
-                } else {
-                    Log.e(LOGTAG, "Failed to load animators. Either the AnimatedVectorDrawable"
-                            + " must be created using a Resources object or applyTheme() must be"
-                            + " called with a non-null Theme object.");
-                }
-
-                mPendingAnims = null;
-            }
-
-            // Perform a deep copy of the constant state's animators.
-            final int count = mAnimators == null ? 0 : mAnimators.size();
-            if (count > 0) {
-                final Animator firstAnim = prepareLocalAnimator(0);
-                final AnimatorSet.Builder builder = animatorSet.play(firstAnim);
-                for (int i = 1; i < count; ++i) {
-                    final Animator nextAnim = prepareLocalAnimator(i);
-                    builder.with(nextAnim);
-                }
-            }
-        }
-
-        /**
-         * Prepares a local animator for the given index within the constant
-         * state's list of animators.
-         *
-         * @param index the index of the animator within the constant state
-         */
-        private Animator prepareLocalAnimator(int index) {
-            final Animator animator = mAnimators.get(index);
-            final Animator localAnimator = animator.clone();
-            final String targetName = mTargetNameMap.get(animator);
-            final Object target = mVectorDrawable.getTargetByName(targetName);
-            localAnimator.setTarget(target);
-            return localAnimator;
-        }
-
-        /**
-         * Inflates pending animators, if any, against a theme. Clears the list of
-         * pending animators.
-         *
-         * @param t the theme against which to inflate the animators
-         */
-        public void inflatePendingAnimators(@NonNull Resources res, @Nullable Theme t) {
-            final ArrayList<PendingAnimator> pendingAnims = mPendingAnims;
-            if (pendingAnims != null) {
-                mPendingAnims = null;
-
-                for (int i = 0, count = pendingAnims.size(); i < count; i++) {
-                    final PendingAnimator pendingAnimator = pendingAnims.get(i);
-                    final Animator objectAnimator = pendingAnimator.newInstance(res, t);
-                    addTargetAnimator(pendingAnimator.target, objectAnimator);
-                }
-            }
-        }
-
-        /**
-         * Basically a constant state for Animators until we actually implement
-         * constant states for Animators.
-         */
-        private static class PendingAnimator {
-            public final int animResId;
-            public final float pathErrorScale;
-            public final String target;
-
-            public PendingAnimator(int animResId, float pathErrorScale, String target) {
-                this.animResId = animResId;
-                this.pathErrorScale = pathErrorScale;
-                this.target = target;
-            }
-
-            public Animator newInstance(Resources res, Theme theme) {
-                return AnimatorInflater.loadAnimator(res, theme, animResId, pathErrorScale);
-            }
+        mAnimatedVectorState.mTempAnimators.add(animator);
+        mAnimatedVectorState.mTargetNameMap.put(animator, name);
+        if (DBG_ANIMATION_VECTOR_DRAWABLE) {
+            Log.v(LOGTAG, "add animator  for target " + name + " " + animator);
         }
     }
 
     @Override
     public boolean isRunning() {
-        return mAnimatorSet.isRunning();
+        return mAnimatedVectorState.mAnimatorSet.isRunning();
     }
 
     private boolean isStarted() {
-        return mAnimatorSet.isStarted();
+        return mAnimatedVectorState.mAnimatorSet.isStarted();
     }
 
     @Override
     public void start() {
-        ensureAnimatorSet();
-
         // If any one of the animator has not ended, do nothing.
         if (isStarted()) {
             return;
         }
-
-        mAnimatorSet.start();
+        mAnimatedVectorState.mAnimatorSet.start();
         invalidateSelf();
-    }
-
-    @NonNull
-    private void ensureAnimatorSet() {
-        if (!mHasAnimatorSet) {
-            mAnimatedVectorState.prepareLocalAnimators(mAnimatorSet, mRes);
-            mHasAnimatorSet = true;
-            mRes = null;
-        }
     }
 
     @Override
     public void stop() {
-        mAnimatorSet.end();
+        mAnimatedVectorState.mAnimatorSet.end();
     }
 
     /**
@@ -631,23 +491,20 @@ public class AnimatedVectorDrawable extends Drawable implements Animatable {
      * @hide
      */
     public void reverse() {
-        ensureAnimatorSet();
-
-        // Only reverse when all the animators can be reversed.
+        // Only reverse when all the animators can be reverse. Otherwise, partially
+        // reverse is confusing.
         if (!canReverse()) {
             Log.w(LOGTAG, "AnimatedVectorDrawable can't reverse()");
             return;
         }
-
-        mAnimatorSet.reverse();
-        invalidateSelf();
+        mAnimatedVectorState.mAnimatorSet.reverse();
     }
 
     /**
      * @hide
      */
     public boolean canReverse() {
-        return mAnimatorSet.canReverse();
+        return mAnimatedVectorState.mAnimatorSet.canReverse();
     }
 
     private final Callback mCallback = new Callback() {
