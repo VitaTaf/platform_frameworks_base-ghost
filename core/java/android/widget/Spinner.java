@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
-import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
@@ -219,24 +218,24 @@ public class Spinner extends AbsSpinner implements OnClickListener {
      *                    Can be 0 to not look for defaults.
      * @param mode Constant describing how the user will select choices from
      *             the spinner.
-     * @param popupTheme The theme against which the dialog or dropdown popup
-     *                   should be inflated. May be {@code null} to use the
-     *                   view theme. If set, this will override any value
-     *                   specified by
-     *                   {@link android.R.styleable#Spinner_popupTheme}.
+     * @param popupContext The context against which the dialog or dropdown
+     *                     popup will be inflated. Can be null to use the view
+     *                     context. If set, this will override any value
+     *                     specified by
+     *                     {@link android.R.styleable#Spinner_popupTheme}.
      *
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
     public Spinner(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, int mode,
-            Theme popupTheme) {
+            Context popupContext) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.Spinner, defStyleAttr, defStyleRes);
 
-        if (popupTheme != null) {
-            mPopupContext = new ContextThemeWrapper(context, popupTheme);
+        if (popupContext != null) {
+            mPopupContext = popupContext;
         } else {
             final int popupThemeResId = a.getResourceId(R.styleable.Spinner_popupTheme, 0);
             if (popupThemeResId != 0) {
@@ -937,8 +936,9 @@ public class Spinner extends AbsSpinner implements OnClickListener {
                 mListAdapter = (ListAdapter) adapter;
             }
 
-            if (dropDownTheme != null && adapter instanceof ThemedSpinnerAdapter) {
-                final ThemedSpinnerAdapter themedAdapter = (ThemedSpinnerAdapter) adapter;
+            if (dropDownTheme != null && adapter instanceof Spinner.ThemedSpinnerAdapter) {
+                final Spinner.ThemedSpinnerAdapter themedAdapter =
+                        (Spinner.ThemedSpinnerAdapter) adapter;
                 if (themedAdapter.getDropDownViewTheme() == null) {
                     themedAdapter.setDropDownViewTheme(dropDownTheme);
                 }
@@ -1267,4 +1267,20 @@ public class Spinner extends AbsSpinner implements OnClickListener {
         }
     }
 
+    public interface ThemedSpinnerAdapter {
+        /**
+         * Sets the {@link Resources.Theme} against which drop-down views are
+         * inflated.
+         *
+         * @param theme the context against which to inflate drop-down views
+         * @see SpinnerAdapter#getDropDownView(int, View, ViewGroup)
+         */
+        public void setDropDownViewTheme(Resources.Theme theme);
+
+        /**
+         * @return The {@link Resources.Theme} against which drop-down views are
+         *         inflated.
+         */
+        public Resources.Theme getDropDownViewTheme();
+    }
 }

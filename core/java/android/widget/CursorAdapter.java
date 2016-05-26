@@ -39,7 +39,7 @@ import android.view.ViewGroup;
  * columns.
  */
 public abstract class CursorAdapter extends BaseAdapter implements Filterable,
-        CursorFilter.CursorFilterClient, ThemedSpinnerAdapter {
+        CursorFilter.CursorFilterClient, Spinner.ThemedSpinnerAdapter {
     /**
      * This field should be made private, so it is hidden from the SDK.
      * {@hide}
