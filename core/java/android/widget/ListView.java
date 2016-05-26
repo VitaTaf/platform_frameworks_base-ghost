@@ -1194,6 +1194,7 @@ public class ListView extends AbsListView {
             child.setLayoutParams(p);
         }
         p.viewType = mAdapter.getItemViewType(position);
+        p.isEnabled = mAdapter.isEnabled(position);
         p.forceAdd = true;
 
         int childWidthSpec = ViewGroup.getChildMeasureSpec(widthMeasureSpec,
@@ -1903,6 +1904,7 @@ public class ListView extends AbsListView {
             p = (AbsListView.LayoutParams) generateDefaultLayoutParams();
         }
         p.viewType = mAdapter.getItemViewType(position);
+        p.isEnabled = mAdapter.isEnabled(position);
 
         if ((recycled && !p.forceAdd) || (p.recycledHeaderFooter &&
                 p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER)) {
