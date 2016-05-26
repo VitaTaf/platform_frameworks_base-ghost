@@ -712,7 +712,9 @@ public class Spinner extends AbsSpinner implements OnClickListener {
             lp = generateDefaultLayoutParams();
         }
 
-        addViewInLayout(child, 0, lp);
+        if (addChild) {
+            addViewInLayout(child, 0, lp);
+        }
 
         child.setSelected(hasFocus());
         if (mDisableChildrenWhenDisabled) {
@@ -742,10 +744,6 @@ public class Spinner extends AbsSpinner implements OnClickListener {
         childRight = childLeft + width;
 
         child.layout(childLeft, childTop, childRight, childBottom);
-
-        if (!addChild) {
-            removeViewInLayout(child);
-        }
     }
 
     @Override
