@@ -73,12 +73,13 @@ public abstract class AbsSpinner extends AdapterView<SpinnerAdapter> {
         initAbsSpinner();
 
         final TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.AbsSpinner, defStyleAttr, defStyleRes);
+                attrs, com.android.internal.R.styleable.AbsSpinner, defStyleAttr, defStyleRes);
 
-        final CharSequence[] entries = a.getTextArray(R.styleable.AbsSpinner_entries);
+        CharSequence[] entries = a.getTextArray(R.styleable.AbsSpinner_entries);
         if (entries != null) {
-            final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
-                    context, R.layout.simple_spinner_item, entries);
+            ArrayAdapter<CharSequence> adapter =
+                    new ArrayAdapter<CharSequence>(context,
+                            R.layout.simple_spinner_item, entries);
             adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
             setAdapter(adapter);
         }
