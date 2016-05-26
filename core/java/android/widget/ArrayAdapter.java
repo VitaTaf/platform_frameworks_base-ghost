@@ -20,9 +20,7 @@ import android.annotation.ArrayRes;
 import android.annotation.IdRes;
 import android.annotation.LayoutRes;
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,8 +47,7 @@ import java.util.List;
  * or to have some of data besides toString() results fill the views,
  * override {@link #getView(int, View, ViewGroup)} to return the type of view you want.
  */
-public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
-        Spinner.ThemedSpinnerAdapter {
+public class ArrayAdapter<T> extends BaseAdapter implements Filterable {
     /**
      * Contains the list of objects that represent the data of this ArrayAdapter.
      * The content of this list is referred to as "the array" in the documentation.
@@ -99,9 +96,6 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
 
     private LayoutInflater mInflater;
 
-    /** Layout inflater used for {@link #getDropDownView(int, View, ViewGroup)}. */
-    private LayoutInflater mDropDownInflater;
-
     /**
      * Constructor
      *
@@ -110,7 +104,7 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      *                 instantiating views.
      */
     public ArrayAdapter(Context context, @LayoutRes int resource) {
-        this(context, resource, 0, new ArrayList<T>());
+        init(context, resource, 0, new ArrayList<T>());
     }
 
     /**
@@ -122,7 +116,7 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      * @param textViewResourceId The id of the TextView within the layout resource to be populated
      */
     public ArrayAdapter(Context context, @LayoutRes int resource, @IdRes int textViewResourceId) {
-        this(context, resource, textViewResourceId, new ArrayList<T>());
+        init(context, resource, textViewResourceId, new ArrayList<T>());
     }
 
     /**
@@ -134,7 +128,7 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      * @param objects The objects to represent in the ListView.
      */
     public ArrayAdapter(Context context, @LayoutRes int resource, T[] objects) {
-        this(context, resource, 0, Arrays.asList(objects));
+        init(context, resource, 0, Arrays.asList(objects));
     }
 
     /**
@@ -147,7 +141,7 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      * @param objects The objects to represent in the ListView.
      */
     public ArrayAdapter(Context context, @LayoutRes int resource, @IdRes int textViewResourceId, T[] objects) {
-        this(context, resource, textViewResourceId, Arrays.asList(objects));
+        init(context, resource, textViewResourceId, Arrays.asList(objects));
     }
 
     /**
@@ -159,7 +153,7 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      * @param objects The objects to represent in the ListView.
      */
     public ArrayAdapter(Context context, @LayoutRes int resource, List<T> objects) {
-        this(context, resource, 0, objects);
+        init(context, resource, 0, objects);
     }
 
     /**
@@ -172,11 +166,7 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      * @param objects The objects to represent in the ListView.
      */
     public ArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects) {
-        mContext = context;
-        mInflater = LayoutInflater.from(context);
-        mResource = mDropDownResource = resource;
-        mObjects = objects;
-        mFieldId = textViewResourceId;
+        init(context, resource, textViewResourceId, objects);
     }
 
     /**
@@ -318,6 +308,14 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
         mNotifyOnChange = notifyOnChange;
     }
 
+    private void init(Context context, int resource, int textViewResourceId, List<T> objects) {
+        mContext = context;
+        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mResource = mDropDownResource = resource;
+        mObjects = objects;
+        mFieldId = textViewResourceId;
+    }
+
     /**
      * Returns the context associated with this array adapter. The context is used
      * to create views from the resource passed to the constructor.
@@ -364,16 +362,16 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
      * {@inheritDoc}
      */
     public View getView(int position, View convertView, ViewGroup parent) {
-        return createViewFromResource(mInflater, position, convertView, parent, mResource);
+        return createViewFromResource(position, convertView, parent, mResource);
     }
 
-    private View createViewFromResource(LayoutInflater inflater, int position, View convertView,
-            ViewGroup parent, int resource) {
+    private View createViewFromResource(int position, View convertView, ViewGroup parent,
+            int resource) {
         View view;
         TextView text;
 
         if (convertView == null) {
-            view = inflater.inflate(resource, parent, false);
+            view = mInflater.inflate(resource, parent, false);
         } else {
             view = convertView;
         }
@@ -413,40 +411,11 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable,
     }
 
     /**
-     * Sets the {@link Resources.Theme} against which drop-down views are
-     * inflated.
-     * <p>
-     * By default, drop-down views are inflated against the theme of the
-     * {@link Context} passed to the adapter's constructor.
-     *
-     * @param theme the theme against which to inflate drop-down views or
-     *              {@code null} to use the theme from the adapter's context
-     * @see #getDropDownView(int, View, ViewGroup)
-     */
-    @Override
-    public void setDropDownViewTheme(Resources.Theme theme) {
-        if (theme == null) {
-            mDropDownInflater = null;
-        } else if (theme == mInflater.getContext().getTheme()) {
-            mDropDownInflater = mInflater;
-        } else {
-            final Context context = new ContextThemeWrapper(mContext, theme);
-            mDropDownInflater = LayoutInflater.from(context);
-        }
-    }
-
-    @Override
-    public Resources.Theme getDropDownViewTheme() {
-        return mDropDownInflater == null ? null : mDropDownInflater.getContext().getTheme();
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        final LayoutInflater inflater = mDropDownInflater == null ? mInflater : mDropDownInflater;
-        return createViewFromResource(inflater, position, convertView, parent, mDropDownResource);
+        return createViewFromResource(position, convertView, parent, mDropDownResource);
     }
 
     /**
